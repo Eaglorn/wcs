@@ -7,8 +7,9 @@
   "Lua.type.weakUnionCheck": true,
   "Lua.type.weakNilCheck": true,
   "Lua.diagnostics.disable": [
-      "lowercase-global",
-      "inject-field"
+    "lowercase-global",
+    "inject-field",
+    "undefined-global"
   ],
   "editor.parameterHints.enabled": true,
   "workbench.editor.enablePreview": false,

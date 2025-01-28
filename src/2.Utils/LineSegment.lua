@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-parameter
 --[[ LineSegmentEnumeration v2.2a
 
     API:

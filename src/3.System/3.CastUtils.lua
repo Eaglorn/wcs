@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-parameter
 ABILITY = {}
 do
     local EventChannelId = GetHandleId(EVENT_PLAYER_UNIT_SPELL_CHANNEL)

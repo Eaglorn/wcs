@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch
 --[[ requires Utilities, WorldBounds, Indexer, TimerUtils, RegisterPlayerUnitEvent, optional Tenacity
     -- ------------------------------------- Crowd Control v1.0 ------------------------------------- --
     -- How to Import:
