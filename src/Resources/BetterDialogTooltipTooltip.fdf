@@ -1,0 +1,26 @@
+// -- LOCAL TEMPLATES -------------------------------------------------------
+Frame "BACKDROP" "BetterDialogTooltipTooltipBackgroundTemplate" {
+        DecorateFileNames,
+        BackdropBackground  "ToolTipBackground",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.008,
+        BackdropBackgroundInsets 0.0022 0.0022 0.0022 0.0022,
+        BackdropEdgeFile  "ToolTipBorder",
+        BackdropBlendAll,
+}
+// -- Frames -------------------------------------------------------
+Frame "BACKDROP" "BetterDialogTooltipTooltip" INHERITS "BetterDialogTooltipTooltipBackgroundTemplate" {
+   UseActiveContext,
+ 
+   Frame "TEXT" "BetterDialogTooltipTooltipValue" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "BetterDialogTooltipTooltip", TOPLEFT, 0.0225, -0.0225,
+       SetPoint TOPRIGHT,  "BetterDialogTooltipTooltip", TOPRIGHT, -0.0225, -0.0225,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.011, "",
+       FontColor 1.0 1.0 1.0 1.0,
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+}

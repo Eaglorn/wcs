@@ -38,7 +38,7 @@ do
         end
     end
 
-    OnInit(function()
+    OnInit.trig(function()
         local trigger = CreateTrigger()
         local region = CreateRegion()
         local rect = GetWorldBounds()

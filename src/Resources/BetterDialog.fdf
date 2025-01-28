@@ -1,0 +1,14 @@
+// -- LOCAL TEMPLATES -------------------------------------------------------
+Frame "BACKDROP" "BetterDialogBackgroundTemplate" {
+        DecorateFileNames,
+        BackdropBackground  "EscMenuBackground",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.0475,
+        BackdropBackgroundInsets 0.0088 0.0088 0.0088 0.0088,
+        BackdropEdgeFile  "EscMenuBorder",
+        BackdropBlendAll,
+}
+// -- Frames -------------------------------------------------------
+Frame "BACKDROP" "BetterDialog" INHERITS "BetterDialogBackgroundTemplate" {
+   UseActiveContext,
+}

@@ -1,0 +1,66 @@
+// -- LOCAL TEMPLATES -------------------------------------------------------
+Frame "BACKDROP" "TalentTooltipBackgroundTemplate" {
+        DecorateFileNames, //Look-Up Names in some String table (for example gameinterface)
+        BackdropTileBackground, //Tile mode enabled
+        BackdropBackground  "ToolTipBackground", //BackgroundFile
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.008, //higher numbers make the corners bigger.
+        BackdropBackgroundInsets 0.0022 0.0022 0.0022 0.0022, //makes the background smaller, from the outside.
+        BackdropEdgeFile  "ToolTipBorder", //the border File
+        BackdropBlendAll,
+}
+// -- Frames -------------------------------------------------------
+Frame "BACKDROP" "TalentTooltip" INHERITS "TalentTooltipBackgroundTemplate" {
+   UseActiveContext,
+ 
+   Frame "TEXT" "TalentTooltipTitle" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "TalentTooltip", TOPLEFT, 0.004, -0.0045,
+       SetPoint TOPRIGHT, "TalentTooltip", TOPRIGHT, -0.004, -0.0045,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.013, "",
+       FontColor 1.0 1.0 1.0 1.0, //Red Green Blue Alpha 0.0 to 1.0
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+ 
+   Frame "TEXT" "TalentTooltipValue" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "TalentTooltip", TOPLEFT, 0.004, -0.03,
+       SetPoint TOPRIGHT,  "TalentTooltip", TOPRIGHT, -0.004, -0.03,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.011, "",
+       FontColor 1.0 1.0 1.0 1.0,
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+   
+   Frame "BACKDROP" "TalentTooltipIcon" {
+       BackdropBackground  "TalentPoints.blp",
+       SetPoint TOPLEFT, "TalentTooltipTitle", TOPRIGHT, -0.015, 0.002,
+       SetPoint BOTTOMRIGHT,  "TalentTooltipTitle", TOPRIGHT, 0.001, -0.014,
+       BackdropBlendAll,
+   }
+   
+   Frame "TEXT" "TalentTooltipCost" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "TalentTooltipTitle", TOPRIGHT, -0.06, 0.002,
+       SetPoint BOTTOMRIGHT,  "TalentTooltipTitle", TOPRIGHT, -0.017, -0.015,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.013, "",
+       FontColor 1.0 1.0 1.0 1.0,
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+   
+   Frame "BACKDROP" "TalentTooltipSeparator" {
+       DecorateFileNames, //Look-Up Names in some String table (for example gameinterface)
+       BackdropBackground  "ToolTipHorizontalSeparator",
+       SetPoint TOPLEFT, "TalentTooltip", TOPLEFT, 0.0075, -0.023,
+       SetPoint BOTTOMRIGHT,  "TalentTooltip", TOPRIGHT, -0.0075, -0.0236,
+       BackdropBlendAll,
+   }
+}

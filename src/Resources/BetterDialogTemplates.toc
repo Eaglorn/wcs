@@ -1,0 +1,6 @@
+UI\FrameDef\Glue\standardtemplates.fdf
+UI\FrameDef\UI\escmenutemplates.fdf
+UI\FrameDef\Glue\battlenettemplates.fdf
+BetterDialogTooltipEscMenu.fdf
+BetterDialogTooltipTooltip.fdf
+BetterDialog.fdf

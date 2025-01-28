@@ -1,0 +1,48 @@
+// -- Frames -------------------------------------------------------
+
+Frame "BACKDROP" "TalentTreeParentFrame" {
+	BackdropBackground  "",
+	BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+	BackdropCornerSize  0.0475,
+	BackdropBackgroundInsets 0.02 0.042 0.036 0.02, //Right, top, bottom, left
+	BackdropBlendAll,
+	UseActiveContext,
+	
+	Frame "BACKDROP" "TalentTreeBackdrop" {
+		BackdropBackground  "",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.0475,
+		BackdropBlendAll,
+		UseActiveContext,
+	}
+	
+	Frame "BACKDROP" "TalentTreeBottomBar" {
+		BackdropTileBackground,
+		BackdropBackground  "blackMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.028,
+		BackdropBackgroundInsets 0.005 0.005 0.005 0.005,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+	
+	Frame "BACKDROP" "TalentTreeTopBar" {
+		BackdropTileBackground,
+		BackdropBackground  "blackMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.028,
+		BackdropBackgroundInsets 0.005 0.005 0.005 0.005,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+	
+	Frame "BACKDROP" "TalentTreeBorder" {
+		BackdropBackground  "transparentMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.0475,
+		BackdropBackgroundInsets 0.02 0.023 0.017 0.02,
+		BackdropEdgeFile  "metallicBorder.blp",
+		BackdropBlendAll,
+		UseActiveContext,
+	}
+}

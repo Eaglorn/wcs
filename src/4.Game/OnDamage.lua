@@ -24,7 +24,8 @@ do
                 AddUnitBonus(target, BONUS_ARMOR, 1)
                 AddUnitBonus(target, BONUS_DAMAGE, 1)
                 AddUnitBonus(target, BONUS_TENACITY, 0.01)
-                StunUnit(source, 0.5, nil, nil, true)
+                --StunUnit(source, 0.5, "Abilities/Spells/Human/Thunderclap/ThunderclapTarget.mdl", "overhead", false)
+                SleepUnit(source, 0.5, "Abilities/Spells/Undead/Sleep/SleepTarget.mdl", "overhead", true)
             elseif damage < 0 then
             end
         end))

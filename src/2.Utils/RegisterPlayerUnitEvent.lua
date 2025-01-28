@@ -32,7 +32,7 @@
 *
 **************************************************************/
 ]] --
-
+if Debug and Debug.beginFile then Debug.beginFile("RegisterPlayerUnitEvent") end
 do
     local trigger = {}
     local f = {}
@@ -88,3 +88,4 @@ do
         return trigger[GetHandleId(playerunitevent)]
     end
 end
+if Debug and Debug.endFile then Debug.endFile() end

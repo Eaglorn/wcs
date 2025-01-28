@@ -1,0 +1,54 @@
+Frame "GLUEBUTTON" "TalentNavigator" {
+    Width 0.035,
+    Height 0.035,
+    ControlStyle "AUTOTRACK|HIGHLIGHTONMOUSEOVER",
+
+    ControlBackdrop "TalentNavigatorIcon",
+    Frame "BACKDROP" "TalentNavigatorIcon" {
+		BackdropTileBackground,
+		BackdropBackground  "blackMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+    }
+	
+	ControlPushedBackdrop "TalentNavigatorPushedBackdrop",
+	Frame "BACKDROP" "TalentNavigatorPushedBackdrop" {
+		BackdropTileBackground,
+		BackdropBackground  "blackMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+
+	ControlDisabledBackdrop "TalentNavigatorIconDisabled",
+	Frame "BACKDROP" "TalentNavigatorIconDisabled" {
+		BackdropBackground  "blackMask.blp",
+		BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+		BackdropCornerSize  0.024,
+		BackdropBackgroundInsets 0.004 0.004 0.004 0.004,
+		BackdropEdgeFile  "talentTreeBorderYellow.blp",
+		BackdropBlendAll,
+	}
+	
+	Frame "TEXT" "TalentNavigatorTitle" {
+		UseActiveContext,
+		DecorateFileNames,
+		FontFlags "FIXEDSIZE",
+		FrameFont "MasterFont", 0.01, "",
+		FontColor 1.0 1.0 1.0 1.0,
+		FontShadowColor 0.0 0.0 0.0 0.9,
+		FontShadowOffset 0.001 -0.001,
+	}
+   
+	ControlMouseOverHighlight "TalentNavigatorHighlight",
+    Frame "HIGHLIGHT" "TalentNavigatorHighlight" {
+		HighlightType "FILETEXTURE",
+		HighlightAlphaFile "UI\Glues\ScoreScreen\scorescreen-tab-hilight.blp",
+		HighlightAlphaMode "ADD",
+   }
+}

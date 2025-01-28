@@ -1,0 +1,26 @@
+// -- LOCAL TEMPLATES -------------------------------------------------------
+Frame "BACKDROP" "BetterDialogTooltipEscMenuBackgroundTemplate" {
+        DecorateFileNames,
+        BackdropBackground  "EscMenuBackground",
+        BackdropCornerFlags "UL|UR|BL|BR|T|L|B|R",
+        BackdropCornerSize  0.0305,
+        BackdropBackgroundInsets 0.0044 0.0044 0.0044 0.0044,
+        BackdropEdgeFile  "EscMenuBorder",
+        BackdropBlendAll,
+}
+// -- Frames -------------------------------------------------------
+Frame "BACKDROP" "BetterDialogTooltipEscMenu" INHERITS "BetterDialogTooltipEscMenuBackgroundTemplate" {
+   UseActiveContext,
+ 
+   Frame "TEXT" "BetterDialogTooltipEscMenuValue" {
+       UseActiveContext,
+       DecorateFileNames,
+       SetPoint TOPLEFT, "BetterDialogTooltipEscMenu", TOPLEFT, 0.0225, -0.0225,
+       SetPoint TOPRIGHT,  "BetterDialogTooltipEscMenu", TOPRIGHT, -0.0225, -0.0225,
+       FontFlags "FIXEDSIZE",
+       FrameFont "MasterFont", 0.011, "",
+       FontColor 1.0 1.0 1.0 1.0,
+       FontShadowColor 0.0 0.0 0.0 0.9,
+       FontShadowOffset 0.001 -0.001,
+   }
+}
