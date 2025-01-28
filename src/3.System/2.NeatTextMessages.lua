@@ -1104,5 +1104,5 @@ do
         end
     end
 
-    OnInit.final("NeatTextMessages", Init)
+    OnInit.main("NeatTextMessages", Init)
 end

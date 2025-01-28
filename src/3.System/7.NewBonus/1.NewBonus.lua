@@ -533,7 +533,7 @@ do
         end
     end
 
-    OnInit.main(function()
+    OnInit(function()
         if NewBonus_EXTENDED and Damage and Evasion and Critical and SpellPower and LifeSteal and SpellVamp and Tenacity then
             NewBonus.last = BONUS_TENACITY_OFFSET
         else

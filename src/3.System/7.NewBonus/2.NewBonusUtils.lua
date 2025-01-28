@@ -177,7 +177,7 @@ do
         end
     end
 
-    OnInit.main(function()
+    OnInit(function()
         RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function()
             local item = GetManipulatedItem()
             local i = 1

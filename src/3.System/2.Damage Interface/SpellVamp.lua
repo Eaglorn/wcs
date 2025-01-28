@@ -29,7 +29,7 @@ do
     -- -------------------------------------------------------------------------- --
     SpellVamp = {}
 
-    OnInit.main(function()
+    OnInit(function()
         RegisterSpellDamageEvent(function()
             local damage = GetEventDamage()
 

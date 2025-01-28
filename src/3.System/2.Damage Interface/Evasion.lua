@@ -80,7 +80,7 @@ do
         SetTextTagPermanent(texttag, false)
     end
 
-    OnInit.main(function()
+    OnInit(function()
         RegisterAttackDamagingEvent(function()
             local damage = GetEventDamage()
 

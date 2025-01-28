@@ -207,7 +207,7 @@ do
         return list[unit]
     end
 
-    OnInit.main(function()
+    OnInit(function()
         RegisterUnitDeindexEvent(function()
             list[GetIndexUnit()] = nil
         end)

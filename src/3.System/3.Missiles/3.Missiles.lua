@@ -96,7 +96,7 @@ do
             end
         end
 
-        OnInit.main(function()
+        OnInit(function()
             local timer = CreateTimer()
 
             TimerStart(timer, 0, false, function()

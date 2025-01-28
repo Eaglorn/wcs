@@ -237,7 +237,7 @@ do
         end
     end
 
-    OnInit.main(function()
+    OnInit(function()
         RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function()
             CDR:register(GetTriggerUnit(), GetSpellAbilityId())
         end)

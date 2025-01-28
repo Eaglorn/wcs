@@ -363,7 +363,7 @@ do
         CurrentlyOpenDialog[whichPlayer] = whichDialog
     end
 
-    OnInit.main(function()
+    OnInit(function()
         BlzLoadTOCFile("BetterDialogTemplates.toc")
     end)
 

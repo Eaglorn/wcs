@@ -9,7 +9,7 @@ do
     local mouse = {}
     local trigger = CreateTrigger()
 
-    OnInit.main(function()
+    OnInit(function()
         for i = 0, bj_MAX_PLAYER_SLOTS do
             local player = Player(i)
 

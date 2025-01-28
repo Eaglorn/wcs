@@ -674,7 +674,7 @@ do
             end
         end
 
-        OnInit.main(function()
+        OnInit(function()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
                 Fear:onOrder()
             end)
@@ -845,7 +845,7 @@ do
             end
         end
 
-        OnInit.main(function()
+        OnInit(function()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function()
                 Taunt:onOrder()
             end)
@@ -911,7 +911,7 @@ do
         local dummy
         local count = 0
 
-        OnInit.main(function()
+        OnInit(function()
             local t = CreateTimer()
 
             TimerStart(t, 0, false, function()

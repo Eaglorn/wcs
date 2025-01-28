@@ -10,7 +10,7 @@ do
      - by Eikonium, with special thanks to:
         - @Bribe, for pretty table print, showing that xpcall's message handler executes before the stack unwinds and useful suggestions like name caching and stack trace improvements.
         - @Jampion, for useful suggestions like print caching and applying Debug.try to all code entry points
-        - @Luashine, for useful feedback and building "WC3 Debug Console Paste Helper" (https://github.com/Luashine/wc3-debug-console-paste-helper#readme)
+        - @Luashine, for useful feedback and building "WC3 Debug Console Paste Helper​" (https://github.com/Luashine/wc3-debug-console-paste-helper#readme)
         - @HerlySQR, for showing a way to get a stack trace in Wc3 (https://www.hiveworkshop.com/threads/lua-getstacktrace.340841/)
         - @Macadamia, for showing a way to print warnings upon accessing nil globals, where this all started with (https://www.hiveworkshop.com/threads/lua-very-simply-trick-to-help-lua-users-track-syntax-errors.326266/)
 
@@ -188,43 +188,43 @@ do
         --BEGIN OF SETTINGS--
         settings = {
             --Ingame Error Messages
-            SHOW_TRACE_ON_ERROR = true           ---Set to true to show a stack trace on every error in addition to the regular message (msg sources: automatic error handling, Debug.try, Debug.throwError, ...)
+            SHOW_TRACE_ON_ERROR = true                                   ---Set to true to show a stack trace on every error in addition to the regular message (msg sources: automatic error handling, Debug.try, Debug.throwError, ...)
             ,
-            INCLUDE_DEBUGUTILS_INTO_TRACE = true ---Set to true to include lines from Debug Utils into the stack trace. Those show the source of error handling, which you might consider redundant.
+            INCLUDE_DEBUGUTILS_INTO_TRACE = true                         ---Set to true to include lines from Debug Utils into the stack trace. Those show the source of error handling, which you might consider redundant.
             ,
-            USE_TRY_ON_TRIGGERADDACTION = true   ---Set to true for automatic error handling on TriggerAddAction (applies Debug.try on every trigger action).
+            USE_TRY_ON_TRIGGERADDACTION = true                           ---Set to true for automatic error handling on TriggerAddAction (applies Debug.try on every trigger action).
             ,
-            USE_TRY_ON_CONDITION = true          ---Set to true for automatic error handling on boolexpressions created via Condition() or Filter() (essentially applies Debug.try on every trigger condition).
+            USE_TRY_ON_CONDITION = true                                  ---Set to true for automatic error handling on boolexpressions created via Condition() or Filter() (essentially applies Debug.try on every trigger condition).
             ,
-            USE_TRY_ON_TIMERSTART = true         ---Set to true for automatic error handling on TimerStart (applies Debug.try on every timer callback).
+            USE_TRY_ON_TIMERSTART = true                                 ---Set to true for automatic error handling on TimerStart (applies Debug.try on every timer callback).
             ,
-            USE_TRY_ON_ENUMFUNCS = true          ---Set to true for automatic error handling on ForGroup, ForForce, EnumItemsInRect and EnumDestructablesInRect (applies Debug.try on every enum callback)
+            USE_TRY_ON_ENUMFUNCS = true                                  ---Set to true for automatic error handling on ForGroup, ForForce, EnumItemsInRect and EnumDestructablesInRect (applies Debug.try on every enum callback)
             ,
-            USE_TRY_ON_COROUTINES = true         ---Set to true for improved stack traces on errors within coroutines (applies Debug.try on coroutine.create and coroutine.wrap). This lets stack traces point to the erroneous function executed within the coroutine (instead of the function creating the coroutine).
+            USE_TRY_ON_COROUTINES = true                                 ---Set to true for improved stack traces on errors within coroutines (applies Debug.try on coroutine.create and coroutine.wrap). This lets stack traces point to the erroneous function executed within the coroutine (instead of the function creating the coroutine).
             --Ingame Console and -exec
             ,
-            ALLOW_INGAME_CODE_EXECUTION = true ---Set to true to enable IngameConsole and -exec command.
+            ALLOW_INGAME_CODE_EXECUTION = true                           ---Set to true to enable IngameConsole and -exec command.
             --Warnings for nil globals
             ,
-            WARNING_FOR_NIL_GLOBALS = true                       ---Set to true to print warnings upon accessing nil-globals (i.e. globals containing no value).
+            WARNING_FOR_NIL_GLOBALS = true                               ---Set to true to print warnings upon accessing nil-globals (i.e. globals containing no value).
             ,
-            SHOW_TRACE_FOR_NIL_WARNINGS = false                  ---Set to true to include a stack trace into nil-warnings.
+            SHOW_TRACE_FOR_NIL_WARNINGS = false                          ---Set to true to include a stack trace into nil-warnings.
             ,
-            EXCLUDE_BJ_GLOBALS_FROM_NIL_WARNINGS = false         ---Set to true to exclude bj_ variables from nil-warnings.
+            EXCLUDE_BJ_GLOBALS_FROM_NIL_WARNINGS = false                 ---Set to true to exclude bj_ variables from nil-warnings.
             ,
-            EXCLUDE_INITIALIZED_GLOBALS_FROM_NIL_WARNINGS = true ---Set to true to disable warnings for initialized globals, (i.e. nil globals that held a value at some point will be treated intentionally nilled and no longer prompt warnings).
+            EXCLUDE_INITIALIZED_GLOBALS_FROM_NIL_WARNINGS = true         ---Set to true to disable warnings for initialized globals, (i.e. nil globals that held a value at some point will be treated intentionally nilled and no longer prompt warnings).
             --Print Caching
             ,
-            USE_PRINT_CACHE = true ---Set to true to let print()-calls during loading screen be cached until the game starts.
+            USE_PRINT_CACHE = true                                       ---Set to true to let print()-calls during loading screen be cached until the game starts.
             ,
             PRINT_DURATION = nil ---@type float Adjusts the duration in seconds that values printed by print() last on screen. Set to nil to use default duration (which depends on string length).
             --Name Caching
             ,
-            USE_NAME_CACHE = true          ---Set to true to let tostring/print output the string-name of an object instead of its memory location (except for booleans/numbers/strings). E.g. print(CreateUnit) will output "function: CreateUnit" instead of "function: 0063A698".
+            USE_NAME_CACHE = true                  ---Set to true to let tostring/print output the string-name of an object instead of its memory location (except for booleans/numbers/strings). E.g. print(CreateUnit) will output "function: CreateUnit" instead of "function: 0063A698".
             ,
-            AUTO_REGISTER_NEW_NAMES = true ---Automatically adds new names from global scope (and subtables of _G up to NAME_CACHE_DEPTH) to the name cache by adding metatables with the __newindex metamethod to ALL tables accessible from global scope.
+            AUTO_REGISTER_NEW_NAMES = true         ---Automatically adds new names from global scope (and subtables of _G up to NAME_CACHE_DEPTH) to the name cache by adding metatables with the __newindex metamethod to ALL tables accessible from global scope.
             ,
-            NAME_CACHE_DEPTH = 4           ---Set to 0 to only affect globals. Experimental feature: Set to an integer > 0 to also cache names for subtables of _G (up to the specified depth). Warning: This will alter the __newindex metamethod of subtables of _G (but not break existing functionality).
+            NAME_CACHE_DEPTH = 4                   ---Set to 0 to only affect globals. Experimental feature: Set to an integer > 0 to also cache names for subtables of _G (up to the specified depth). Warning: This will alter the __newindex metamethod of subtables of _G (but not break existing functionality).
             --Colors
             ,
             colors = {
@@ -263,7 +263,7 @@ do
     }
     --localization
     local settings, paramLog, nameCache, nameDepths, autoIndexedTables, nameCacheMirror, sourceMap, printCache, data =
-        Debug.settings, Debug.data.paramLog, Debug.data.nameCache, Debug.data.nameDepths, Debug.data.autoIndexedTables,
+    Debug.settings, Debug.data.paramLog, Debug.data.nameCache, Debug.data.nameDepths, Debug.data.autoIndexedTables,
         Debug.data.nameCacheMirror, Debug.data.sourceMap, Debug.data.printCache, Debug.data
 
     --Write DebugUtils first line number to sourceMap:
@@ -283,8 +283,8 @@ do
     function Debug.getLine(depth)
         depth = depth or 0
         local _, location = pcall(error, "", depth + 3) ---@diagnostic disable-next-line
-        local line = location:match(":\x25d+")    --extracts ":1000" from "war3map.lua:1000:..."
-        return tonumber(line and line:sub(2, -1)) --check if line is nil before applying string.sub to prevent errors (nil can result from string.match above, although it should never do so in our case)
+        local line = location:match(":\x25d+")       --extracts ":1000" from "war3map.lua:1000:..."
+        return tonumber(line and line:sub(2, -1))    --check if line is nil before applying string.sub to prevent errors (nil can result from string.match above, although it should never do so in our case)
     end
 
     ---Tells the Debug library that the specified file begins exactly here (i.e. in the line, where this is called).
@@ -299,11 +299,10 @@ do
     ---@param lastLine? integer Ignore this. For compatibility with Total Initialization.
     function Debug.beginFile(fileName, depth, lastLine)
         depth, fileName = depth or 0,
-            fileName or
-            ''                                                                                  --filename is not actually optional, we just default to '' to prevent crashes.
+            fileName or ''                                                                        --filename is not actually optional, we just default to '' to prevent crashes.
         local line = Debug.getLine(depth + 1)
-        if line then                                                                            --for safety reasons. we don't want to add a non-existing line to the sourceMap
-            table.insert(sourceMap, { firstLine = line, file = fileName, lastLine = lastLine }) --automatically sorted list, because calls of Debug.beginFile happen logically in the order of the map script.
+        if line then                                                                              --for safety reasons. we don't want to add a non-existing line to the sourceMap
+            table.insert(sourceMap, { firstLine = line, file = fileName, lastLine = lastLine })   --automatically sorted list, because calls of Debug.beginFile happen logically in the order of the map script.
         end
     end
 
@@ -321,17 +320,17 @@ do
     ---@param errorMsg string must be formatted like "<document>:<linenumber><RestOfMsg>".
     ---@return string convertedMsg a string of the form "<localDocument>:<localLinenumber><RestOfMsg>"
     function Debug.getLocalErrorMsg(errorMsg)
-        local startPos, endPos = errorMsg:find(":\x25d*")                                  --start and end position of line number. The part before that is the document, part after the error msg.
-        if startPos and endPos then                                                        --can be nil, if input string was not of the desired form "<document>:<linenumber><RestOfMsg>".
+        local startPos, endPos = errorMsg:find(":\x25d*")                                                                                      --start and end position of line number. The part before that is the document, part after the error msg.
+        if startPos and endPos then                                                                                                            --can be nil, if input string was not of the desired form "<document>:<linenumber><RestOfMsg>".
             local document, line, rest = errorMsg:sub(1, startPos), tonumber(errorMsg:sub(startPos + 1, endPos)),
-                errorMsg:sub(endPos + 1, -1)                                               --get error line in war3map.lua
-            if document == 'war3map.lua:' and line then                                    --only convert war3map.lua-references to local position. Other files such as Blizzard.j.lua are not converted (obiously).
-                for i = #sourceMap, 1, -1 do                                               --find local file containing the war3map.lua error line.
-                    if line >= sourceMap[i].firstLine then                                 --war3map.lua line is part of sourceMap[i].file
-                        if not sourceMap[i].lastLine or line <= sourceMap[i].lastLine then --if lastLine is given, we must also check for it
+                errorMsg:sub(endPos + 1, -1)                                                                                                   --get error line in war3map.lua
+            if document == 'war3map.lua:' and line then                                                                                        --only convert war3map.lua-references to local position. Other files such as Blizzard.j.lua are not converted (obiously).
+                for i = #sourceMap, 1, -1 do                                                                                                   --find local file containing the war3map.lua error line.
+                    if line >= sourceMap[i].firstLine then                                                                                     --war3map.lua line is part of sourceMap[i].file
+                        if not sourceMap[i].lastLine or line <= sourceMap[i].lastLine then                                                     --if lastLine is given, we must also check for it
                             return sourceMap[i].file .. ":" .. (line - sourceMap[i].firstLine + 1) .. rest
-                        else                                                               --if line is larger than firstLine and lastLine of sourceMap[i], it is not part of a tracked file -> return global war3map.lua position.
-                            break                                                          --prevent return within next step of the loop ("line >= sourceMap[i].firstLine" would be true again, but wrong file)
+                        else                                                                                                                   --if line is larger than firstLine and lastLine of sourceMap[i], it is not part of a tracked file -> return global war3map.lua position.
+                            break                                                                                                              --prevent return within next step of the loop ("line >= sourceMap[i].firstLine" would be true again, but wrong file)
                         end
                     end
                 end
@@ -367,16 +366,16 @@ do
     local function getStackTrace(startDepth, endDepth)
         local trace, separator = "", ""
         local _, currentFile, lastFile, tracePiece, lastTracePiece
-        for loopDepth = startDepth, endDepth do --get trace on different depth level
+        for loopDepth = startDepth, endDepth do     --get trace on different depth level
             _, tracePiece = pcall(error, "", loopDepth) ---@type boolean, string
             tracePiece = convertToLocalErrorMsg(tracePiece)
-            if #tracePiece > 0 and lastTracePiece ~= tracePiece then --some trace pieces can be empty, but there can still be valid ones beyond that
+            if #tracePiece > 0 and lastTracePiece ~= tracePiece then     --some trace pieces can be empty, but there can still be valid ones beyond that
                 currentFile = tracePiece:match("^.-:")
                 --Hide DebugUtils in the stack trace (except main reference), if settings.INCLUDE_DEBUGUTILS_INTO_TRACE is set to true.
                 if settings.INCLUDE_DEBUGUTILS_INTO_TRACE or (loopDepth == startDepth) or currentFile ~= "DebugUtils:" then
                     trace = trace ..
-                        separator ..
-                        ((currentFile == lastFile) and tracePiece:match(":\x25d+"):sub(2, -1) or tracePiece:match("^.-:\x25d+"))
+                    separator ..
+                    ((currentFile == lastFile) and tracePiece:match(":\x25d+"):sub(2, -1) or tracePiece:match("^.-:\x25d+"))
                     lastFile, lastTracePiece, separator = currentFile, tracePiece, " <- "
                 end
             end
@@ -389,26 +388,25 @@ do
     ---@param errorMsg string
     ---@param startDepth? integer default: 4 for use in xpcall
     local function errorHandler(errorMsg, startDepth)
-        startDepth = startDepth or 4 --xpcall doesn't specify this param, so it must default to 4 for this case
+        startDepth = startDepth or 4     --xpcall doesn't specify this param, so it must default to 4 for this case
         errorMsg = convertToLocalErrorMsg(errorMsg)
         --Original error message and stack trace.
         local toPrint = "|cff" .. settings.colors.error .. "ERROR at " .. errorMsg .. "|r"
         if settings.SHOW_TRACE_ON_ERROR then
             toPrint = toPrint ..
-                "\n|cff" ..
-                settings.colors.error ..
-                "Traceback (most recent call first):|r\n|cff" ..
-                settings.colors.error .. getStackTrace(startDepth, 200) .. "|r"
+            "\n|cff" ..
+            settings.colors.error ..
+            "Traceback (most recent call first):|r\n|cff" ..
+            settings.colors.error .. getStackTrace(startDepth, 200) .. "|r"
         end
         --Also print entries from param log, if there are any.
         for location, loggedParams in pairs(paramLog) do
             toPrint = toPrint ..
-                "\n|cff" ..
-                settings.colors.log .. "Logged at " .. convertToLocalErrorMsg(location) .. loggedParams .. "|r"
+            "\n|cff" .. settings.colors.log .. "Logged at " .. convertToLocalErrorMsg(location) .. loggedParams .. "|r"
             paramLog[location] = nil
         end
         data.firstError = data.firstError or toPrint
-        if data.printErrors_yn then --don't print error, if execution of Debug.firstError() has disabled it.
+        if data.printErrors_yn then     --don't print error, if execution of Debug.firstError() has disabled it.
             print(toPrint)
         end
     end
@@ -628,19 +626,18 @@ do
     end
 
     --Set empty metatable to _G. __index is added when game starts (for "attempt to read nil-global"-errors), __newindex is added right below (for building the name cache).
-    setmetatable(_G, getmetatable(_G) or {}) --getmetatable(_G) should always return nil provided that DebugUtils is the topmost script file in the trigger editor, but we still include this for safety-
+    setmetatable(_G, getmetatable(_G) or {})     --getmetatable(_G) should always return nil provided that DebugUtils is the topmost script file in the trigger editor, but we still include this for safety-
 
     -- Save old tostring into Debug Library before overwriting it.
     Debug.oldTostring = tostring
 
     if settings.USE_NAME_CACHE then
         local oldTostring = tostring
-        tostring = function(obj)            --new tostring(CreateUnit) prints "function: CreateUnit"
+        tostring = function(obj)                --new tostring(CreateUnit) prints "function: CreateUnit"
             --tostring of non-primitive object is NOT guaranteed to be like "<type>:<hex>", because it might have been changed by some __tostring-metamethod.
-            if settings.USE_NAME_CACHE then --return names from name cache only if setting is enabled. This allows turning it off during runtime (via Ingame Console) to revert to old tostring.
+            if settings.USE_NAME_CACHE then     --return names from name cache only if setting is enabled. This allows turning it off during runtime (via Ingame Console) to revert to old tostring.
                 return nameCache[obj] and
-                    ((oldTostring(obj):match("^.-: ") or (oldTostring(obj) .. ": ")) .. nameCache[obj]) or
-                    oldTostring(obj)
+                ((oldTostring(obj):match("^.-: ") or (oldTostring(obj) .. ": ")) .. nameCache[obj]) or oldTostring(obj)
             end
             return Debug.oldTostring(obj)
         end
@@ -677,7 +674,7 @@ do
                             local mt = getmetatable(v)
                             if not mt then
                                 mt = {}
-                                setmetatable(v, mt) --only use setmetatable when we are sure there wasn't any before to prevent issues with "__metatable"-metamethod.
+                                setmetatable(v, mt)     --only use setmetatable when we are sure there wasn't any before to prevent issues with "__metatable"-metamethod.
                             end
                             ---@diagnostic disable-next-line: assign-type-mismatch
                             local existingNewIndex = mt.__newindex
@@ -685,7 +682,7 @@ do
                             --If mt has an existing __newindex, add the name-register effect to it (effectively create a new __newindex using the old)
                             if existingNewIndex then
                                 mt.__newindex = function(t, k, v)
-                                    nameRegisterNewIndex(t, k, v, true) --setting t[k] = v might not be desired in case of existing newindex. Skip it and let existingNewIndex make the decision.
+                                    nameRegisterNewIndex(t, k, v, true)   --setting t[k] = v might not be desired in case of existing newindex. Skip it and let existingNewIndex make the decision.
                                     if isTable_yn then
                                         existingNewIndex[k] = v
                                     else
@@ -707,7 +704,7 @@ do
 
             --Apply metamethod to _G.
             local existingNewIndex = getmetatable(_G)
-                .__newindex --should always be nil provided that DebugUtils is the topmost script in your trigger editor. Still included for safety.
+            .__newindex                                              --should always be nil provided that DebugUtils is the topmost script in your trigger editor. Still included for safety.
             local isTable_yn = (type(existingNewIndex) == 'table')
             if existingNewIndex then
                 getmetatable(_G).__newindex = function(t, k, v)
@@ -741,7 +738,7 @@ do
         if func then
             tryWrappers[func] = tryWrappers[func] or function(...) return try(func, ...) end
         end
-        return tryWrappers[func] --returns nil for func = nil (important for TimerStart overwrite below)
+        return tryWrappers[func]     --returns nil for func = nil (important for TimerStart overwrite below)
     end
 
     --Overwrite TriggerAddAction, TimerStart, Condition, Filter and Enum natives to let them automatically apply Debug.try.
@@ -815,7 +812,7 @@ do
         print = function(...)
             if bj_gameStarted then
                 oldPrint(...)
-            else --during loading screen only: concatenate input arguments 4-space-separated, implicitely apply tostring on each, cache to table
+            else     --during loading screen only: concatenate input arguments 4-space-separated, implicitely apply tostring on each, cache to table
                 ---@diagnostic disable-next-line
                 printCache.n = printCache.n + 1
                 printCache[printCache.n] = concat(...)
@@ -859,9 +856,9 @@ do
         if settings.WARNING_FOR_NIL_GLOBALS then
             local existingIndex = getmetatable(_G).__index
             local isTable_yn = (type(existingIndex) == 'table')
-            getmetatable(_G).__index = function(t, k)                                                                                                                                --we made sure that _G has a metatable further above.
+            getmetatable(_G).__index = function(t, k)                                                                                                                                  --we made sure that _G has a metatable further above.
                 --Don't show warning, if the variable name has been actively excluded or if it's a bj_ variable (and those are excluded).
-                if data.printErrors_yn and (not globalWarningExclusions[k]) and ((not settings.EXCLUDE_BJ_GLOBALS_FROM_NIL_WARNINGS) or string.sub(tostring(k), 1, 3) ~= 'bj_') then --prevents intentionally nilled bj-variables from triggering the check within Blizzard.j-functions, like bj_cineFadeFinishTimer.
+                if data.printErrors_yn and (not globalWarningExclusions[k]) and ((not settings.EXCLUDE_BJ_GLOBALS_FROM_NIL_WARNINGS) or string.sub(tostring(k), 1, 3) ~= 'bj_') then   --prevents intentionally nilled bj-variables from triggering the check within Blizzard.j-functions, like bj_cineFadeFinishTimer.
                     print("|cff" ..
                         settings.colors.nilWarning ..
                         "Trying to read nil global at " .. getStackTrace(4, 4) .. ": " .. tostring(k) .. "|r"
@@ -893,7 +890,7 @@ do
             for _, str in ipairs(printCache) do
                 print(str)
             end ---@diagnostic disable-next-line: cast-local-type
-            printCache = nil --frees reference for the garbage collector
+            printCache = nil     --frees reference for the garbage collector
         end
 
         --Create triggers listening to "-console" and "-exec" chat input.
@@ -913,14 +910,14 @@ do
         function Debug.wc3Type(input)
             local typeString = type(input)
             if typeString == 'userdata' then
-                typeString = tostring(input)                                         --tostring returns the warcraft type plus a colon and some hashstuff.
-                return typeString:sub(1, (typeString:find(":", nil, true) or 0) - 1) --string.find returns nil, if the argument is not found, which would break string.sub. So we need to replace by 0.
+                typeString = tostring(input)                                            --tostring returns the warcraft type plus a colon and some hashstuff.
+                return typeString:sub(1, (typeString:find(":", nil, true) or 0) - 1)    --string.find returns nil, if the argument is not found, which would break string.sub. So we need to replace by 0.
             else
                 return typeString
             end
         end
 
-        Wc3Type = Debug.wc3Type --for backwards compatibility
+        Wc3Type = Debug.wc3Type     --for backwards compatibility
 
         local conciseTostring, prettyTostring
 
