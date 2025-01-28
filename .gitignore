@@ -2,3 +2,4 @@
 *w3m
 *.mdx
 *.blp
+src/lib/*.*

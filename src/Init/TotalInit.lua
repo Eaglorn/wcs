@@ -55,7 +55,8 @@ do
     ---@param _ENV table
     ---@param OnInit any
     local function assignLegacyAPI(_ENV, OnInit)
-        OnGlobalInit = OnInit; OnTrigInit = OnInit.trig; OnMapInit = OnInit.map; OnGameStart = OnInit.final              --Global Initialization Lite API
+        OnGlobalInit = OnInit; OnTrigInit = OnInit.trig; OnMapInit = OnInit.map; OnGameStart = OnInit
+            .final --Global Initialization Lite API
         --OnMainInit = OnInit.main; OnLibraryInit = OnInit.library; OnGameInit = OnInit.final                            --short-lived experimental API
         --onGlobalInit = OnInit; onTriggerInit = OnInit.trig; onInitialization = OnInit.map; onGameStart = OnInit.final  --original Global Initialization API
         --OnTriggerInit = OnInit.trig; OnInitialization = OnInit.map                                                     --Forsakn's Ordered Indices API
@@ -113,7 +114,7 @@ do
         end
 
         if initFuncQueue[name] then
-            for _,func in ipairs(initFuncQueue[name]) do
+            for _, func in ipairs(initFuncQueue[name]) do
                 coroutine.wrap(func)(Require)
             end
             initFuncQueue[name] = nil
@@ -159,10 +160,10 @@ do
             'MarkGameStarted',
             function()
                 if library then
-                    for _,func in ipairs(library.queuedInitializerList) do
+                    for _, func in ipairs(library.queuedInitializerList) do
                         func(nil, true) --run errors for missing requirements.
                     end
-                    for _,func in pairs(library.yieldedModuleMatrix) do
+                    for _, func in pairs(library.yieldedModuleMatrix) do
                         func(true) --run errors for modules that aren't required.
                     end
                 end
@@ -214,10 +215,10 @@ do
             addUserFunc(name, libraryName, userInitFunc, debugLineNum)
         end
     end
-    OnInit.global = createInit 'InitGlobals'                -- Called after InitGlobals, and is the standard point to initialize.
-    OnInit.trig   = createInit 'InitCustomTriggers'         -- Called after InitCustomTriggers, and is useful for removing hooks that should only apply to GUI events.
-    OnInit.map    = createInit 'RunInitializationTriggers'  -- Called last in the script's loading screen sequence. Runs after the GUI "Map Initialization" events have run.
-    OnInit.final  = createInit 'MarkGameStarted'            -- Called immediately after the loading screen has disappeared, and the game has started.
+    OnInit.global = createInit 'InitGlobals'               -- Called after InitGlobals, and is the standard point to initialize.
+    OnInit.trig   = createInit 'InitCustomTriggers'        -- Called after InitCustomTriggers, and is useful for removing hooks that should only apply to GUI events.
+    OnInit.map    = createInit 'RunInitializationTriggers' -- Called last in the script's loading screen sequence. Runs after the GUI "Map Initialization" events have run.
+    OnInit.final  = createInit 'MarkGameStarted'           -- Called immediately after the loading screen has disappeared, and the game has started.
 
     do
         ---@param self table
@@ -242,7 +243,7 @@ do
                 library:declare(libraryNameOrInitFunc) --API handler for OnInit "Custom initializer"
             else
                 error(
-                    "Bad OnInit args: "..
+                    "Bad OnInit args: " ..
                     tostring(libraryNameOrInitFunc) .. ", " ..
                     tostring(userInitFunc)
                 )
@@ -271,7 +272,8 @@ do
                     if key == 'config' then
                         fnOrDiscard()
                     elseif gmt.__newindex == hookMainAndConfig then
-                        gmt.__newindex = rawIndex --restore the original __newindex if no further hooks on __newindex exist.
+                        gmt.__newindex =
+                            rawIndex --restore the original __newindex if no further hooks on __newindex exist.
                     end
                     runInitializers(key)
                     if key == 'main' then
@@ -282,6 +284,7 @@ do
                 rawIndex(_G, key, fnOrDiscard)
             end
         end
+
         gmt.__newindex = hookMainAndConfig
         OnInit.root    = createInit 'root'   -- Runs immediately during the Lua root, but is yieldable (allowing requirements) and pcalled.
         OnInit.config  = createInit 'config' -- Runs when `config` is called. Credit to @Luashine: https://www.hiveworkshop.com/threads/inject-main-config-from-we-trigger-code-like-jasshelper.338201/
@@ -303,13 +306,13 @@ do
 
                 ::initLibraries::
                 repeat
-                    continue=false
+                    continue = false
                     self.queuedInitializerList, tempQueue =
                         {}, self.queuedInitializerList
 
-                    for _,func in ipairs(tempQueue) do
+                    for _, func in ipairs(tempQueue) do
                         if func(forceOptional) then
-                            continue=true --Something was initialized; therefore further systems might be able to initialize.
+                            continue = true                          --Something was initialized; therefore further systems might be able to initialize.
                         else
                             insert(self.queuedInitializerList, func) --If the queued initializer returns false, that means its requirement wasn't met, so we re-queue it.
                         end
@@ -319,7 +322,7 @@ do
                 if self.customDeclarationList[1] then
                     self.customDeclarationList, tempQueue =
                         {}, self.customDeclarationList
-                    for _,func in ipairs(tempQueue) do
+                    for _, func in ipairs(tempQueue) do
                         func() --unfreeze any custom initializers.
                     end
                 elseif not forceOptional then
@@ -330,6 +333,7 @@ do
                 goto initLibraries
             end
         end
+
         local function declareName(name, initialValue)
             assert(type(name) == 'string')
             assert(library.moduleValueMatrix[name] == nil)
@@ -338,18 +342,18 @@ do
         end
         function library:create(name, userFunc)
             assert(type(userFunc) == 'function')
-            declareName(name, false)                --declare itself as a non-loaded library.
+            declareName(name, false)               --declare itself as a non-loaded library.
             return function()
-                self:pack(name, userFunc(Require))  --pack return values to allow multiple values to be communicated.
+                self:pack(name, userFunc(Require)) --pack return values to allow multiple values to be communicated.
                 if self.moduleValueMatrix[name].n == 0 then
-                    self:pack(name, true)           --No values were returned; therefore simply package the value as `true`
+                    self:pack(name, true)          --No values were returned; therefore simply package the value as `true`
                 end
             end
         end
 
         ---@async
         function library:declare(name)
-            declareName(name, true)                 --declare itself as a loaded library.
+            declareName(name, true) --declare itself as a loaded library.
 
             local co = coroutine.running()
 
@@ -374,12 +378,12 @@ do
                 optional, requirement, explicitSource =
                     true, optional, requirement --optional requirement (processed by the __index method)
             else
-                optional = false --strict requirement (processed by the __call method)
+                optional = false                --strict requirement (processed by the __call method)
             end
             local source = explicitSource or _G
 
-            assert(type(source)=='table')
-            assert(type(requirement)=='string')
+            assert(type(source) == 'table')
+            assert(type(requirement) == 'string')
 
             ::reindex::
             local subSource, subReq =
@@ -390,22 +394,22 @@ do
                     processRequirement(subSource, source), --If the container is nil, yield until it is not.
                     subReq
 
-                if type(source)=='table' then
+                if type(source) == 'table' then
                     explicitSource = source
                     goto reindex --check for further nested properties ("table.property.subProperty.anyOthers").
                 else
-                    return --The source table for the requirement wasn't found, so disregard the rest (this only happens with optional requirements).
+                    return       --The source table for the requirement wasn't found, so disregard the rest (this only happens with optional requirements).
                 end
             end
             local function loadRequirement(unpack)
                 local package = rawget(source, requirement) --check if the requirement exists in the host table.
                 if not package and not explicitSource then
                     if library.yieldedModuleMatrix[requirement] then
-                        library.yieldedModuleMatrix[requirement]() --load module if it exists
+                        library.yieldedModuleMatrix[requirement]()   --load module if it exists
                     end
                     package = library.moduleValueMatrix[requirement] --retrieve the return value from the module.
-                    if unpack and type(package)=='table' then
-                        return table.unpack(package, 1, package.n) --using unpack allows any number of values to be returned by the required library.
+                    if unpack and type(package) == 'table' then
+                        return table.unpack(package, 1, package.n)   --using unpack allows any number of values to be returned by the required library.
                     end
                 end
                 return package
@@ -417,7 +421,7 @@ do
                 if not loaded then
                     loaded = loadRequirement()
                     loaded = loaded or optional and
-                        (loaded==nil or forceOptional)
+                        (loaded == nil or forceOptional)
                     if loaded then
                         if co then coroutine.resume(co) end --resume only if it was yielded in the first place.
                         return loaded
@@ -431,7 +435,7 @@ do
                 co = coroutine.running()
                 insert(library.queuedInitializerList, checkReqs)
                 if coroutine.yield() then
-                    error("Missing Requirement: "..requirement) --handle the error within the user's function to get an accurate stack trace via the `try` function.
+                    error("Missing Requirement: " .. requirement) --handle the error within the user's function to get an accurate stack trace via the `try` function.
                 end
             end
 
@@ -471,7 +475,7 @@ do
                         end
 
                     if coroutine.yield() then
-                        error("Module declared but not required: "..name)
+                        error("Module declared but not required: " .. name)
                     end
 
                     return userFunc(require)
@@ -489,18 +493,18 @@ do
         function OnInit.library(initList, userFunc)
             local typeOf = type(initList)
 
-            assert(typeOf=='table' or typeOf=='string')
+            assert(typeOf == 'table' or typeOf == 'string')
             assert(type(userFunc) == 'function')
 
             local function caller(use)
-                if typeOf=='string' then
+                if typeOf == 'string' then
                     use(initList)
                 else
-                    for _,initName in ipairs(initList) do
+                    for _, initName in ipairs(initList) do
                         use(initName)
                     end
                     if initList.optional then
-                        for _,initName in ipairs(initList.optional) do
+                        for _, initName in ipairs(initList.optional) do
                             use.lazily(initName)
                         end
                     end
@@ -517,7 +521,7 @@ do
 
         assignLegacyAPI(legacyTable, OnInit)
 
-        for key,func in pairs(legacyTable) do
+        for key, func in pairs(legacyTable) do
             rawset(_G, key, func)
         end
 
