@@ -28,7 +28,7 @@
         function GetUnitCooldownOffsetEx takes unit u returns string
             -> Returns the amount of cdr offset a unit has as a string
 ]] --
-
+if Debug and Debug.beginFile then Debug.beginFile("CooldownReductionUtil") end
 do
     -- -------------------------------------------------------------------------- --
     --                                Configuration                               --
@@ -127,6 +127,7 @@ do
     end
 
     function GetUnitCooldownOffsetEx(unit)
-        return R2SW(CDR:get(u, 2), 1, 2)
+        return R2SW(CDR:get(unit, 2), 1, 2)
     end
 end
+if Debug and Debug.endFile then Debug.endFile() end
