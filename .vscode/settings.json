@@ -15,7 +15,5 @@
   "editor.semanticHighlighting.enabled": true,
   "Lua.codeLens.enable": true,
   "Lua.diagnostics.libraryFiles": "Opened",
-  "Lua.workspace.library": [
-    "C:\\Users\\averin\\Documents\\GitHub\\wcs\\src\\Lib\\"
-  ]
+  "Lua.workspace.library": []
 }
