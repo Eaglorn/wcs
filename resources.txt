@@ -1,0 +1,10 @@
+https://github.com/yatyricky/lua-maps/blob/master/demo.w3x/war3map.lua
+
+https://xgm.guru/p/wc3/interface-bases
+https://xgm.guru/p/wc3/Funktsional-freymov-Ums
+
+https://www.hiveworkshop.com/threads/warcraft-3-reforged-ui-designer-ruid.334868/
+https://www.hiveworkshop.com/threads/button-manager-v1-8-2.116280/
+
+https://www.hiveworkshop.com/threads/get-handle-type.354436/
+https://www.hiveworkshop.com/threads/easy-ability-fields.355859/

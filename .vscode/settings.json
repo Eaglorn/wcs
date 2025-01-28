@@ -1,12 +1,21 @@
 {
   "json.maxItemsComputed": 30000,
-  "Lua.workspace.preloadFileSize": 2000,
-  "Lua.workspace.maxPreload": 1000,
+  "Lua.runtime.version": "Lua 5.4",
+  "Lua.workspace.preloadFileSize": 10000,
+  "Lua.workspace.maxPreload": 10000,
   "Lua.hint.enable": true,
   "Lua.type.weakUnionCheck": true,
   "Lua.type.weakNilCheck": true,
-  "Lua.diagnostics.disable": ["lowercase-global", "inject-field"],
+  "Lua.diagnostics.disable": [
+      "lowercase-global",
+      "inject-field"
+  ],
   "editor.parameterHints.enabled": true,
   "workbench.editor.enablePreview": false,
-  "editor.semanticHighlighting.enabled": true
+  "editor.semanticHighlighting.enabled": true,
+  "Lua.codeLens.enable": true,
+  "Lua.diagnostics.libraryFiles": "Opened",
+  "Lua.workspace.library": [
+    "C:\\Users\\averin\\Documents\\GitHub\\wcs\\src\\Lib\\"
+  ]
 }
