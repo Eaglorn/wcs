@@ -1,0 +1,220 @@
+//TESH.scrollpos=0
+//TESH.alwaysfold=0
+// ===============================================================================
+//                  * System: Item Combine v2
+//
+// * Installation:
+// 
+// 1) Copy "DD Library" "Load Items", "Item Disassemble" and "Item Combine Core" triggers to your map
+//		note: dummy unit and other stuff for "DD Library" trigger is not in this map because this system does not need dummies...
+// 2) Copy ability "Disassemble" and paste it in your map, unless you use different method of item disassemble
+// 3) Export and import "ItemFuse.mdx", "Item_Disassembly.wav" and "Item_Disassemble.mdx" to your map
+//    Import path: Same as in this map
+//    If you want to change path or use different effect, change that below
+// 4) Make your own recipes in "Load Items" trigger
+// 5) Enjoy!
+//
+// Credits: Magos, Audacity team, Notepad++ team, Vexorian, Blizzard
+// ===============================================================================
+
+//! zinc
+library DDItemCombineBasic requires DDLib
+{
+
+    // -------------------------------------------------------
+    // *** Edit to your own will ***
+        
+    // * This is effect that will be displayed when items combine/disassemble and attachment point
+	constant string         ITEM_COMBINE_EFFECT         = "Custom\\Models\\ItemFuse.mdx"; //"Abilities\\Spells\\Items\\AIlm\\AIlmTarget.mdl"
+	constant string			ITEM_DISASSAMBLE_EFFECT		= "Custom\\Models\\Item_Disassemble.mdx";
+	constant string         ATTACH_POINT		        = "origin";
+        
+    // * If you want to use custom sound, setup it below
+    // * "Sound path", "time in second to play sound after combine is done", "volume" and "pitch" of sound
+    constant boolean        USE_CUSTOM_SOUND            = true;
+	constant real           SOUND_MAX_DISTANCE          = 3500.;
+    constant string         SOUND_FILE  		        = "Abilities\\Spells\\Orc\\MirrorImage\\MirrorImage.wav";
+    constant real           SOUND_VOL                   = 90.;
+    constant real           SOUND_PITCH                 = 1.2;
+    
+		
+	// * This is disassemble sound
+	constant string         SOUND_FILE_2  		        = "Custom\\Sounds\\Item_Disassembly.wav";
+	constant real           SOUND_VOL_2                 = 90.;
+	constant real           SOUND_PITCH_2               = 1.;
+    // *** End edit ***
+    // -------------------------------------------------------
+    
+    //private keyword Table
+    // ===========================================================================
+    // ===========================================================================
+    sound               ItemCombineSound        = null;
+	sound				ItemDisassembleSound	= null;
+    integer        		CType[];
+	boolean		  		CTypeDisassemble[];
+	integer             ItemN                   = 0;
+	
+    // ===========================================================================
+    
+	// -----------------------------------------------------------------------
+	// ** Items in CItemType from 1-6 are user items that we need to shift to next memory locations, that is why for this recipe system
+	//    slots lower than 6 are not used, we store items in higher slots
+    public function NewItemGroup() {
+        integer i = ItemN*bj_MAX_INVENTORY + 07;
+        integer h = 01;
+		
+		if (bj_gameStarted || udg_CItemType[00] == 00)
+			return;
+		
+        while(h != 07) {
+            udg_CItemType[i] = udg_CItemType[h];
+            udg_CItemType[h] = 00;
+            h += 01;
+            i += 01;
+        }
+        CType[ItemN] = udg_CItemType[00];
+		CTypeDisassemble[ItemN] = udg_CItemDisassemble;
+        udg_CItemType[00] = 00;
+		ItemN += 01;
+		//udg_CItemDisassemble = false;
+    }
+    
+	// -----------------------------------------------------------------------
+	// ** Primary public function for item disassemble
+    public function SlotItemDisassemble(unit u, integer slot) {
+		item it = UnitItemInSlot(u, slot-01);
+		integer it_id = GetItemTypeId(it);
+		real x = GetUnitX(u);
+		real y = GetUnitY(u);
+		
+		// *** is slot empty? ***
+		if (it != null) {
+			// *** search for registerd item recipe ***
+			for(slot=00; slot < ItemN; slot+=01) {
+				// *** found the item ***
+				if (CType[slot] == it_id) {
+					// *** Check if allow disassemble by user? ***
+					if (!CTypeDisassemble[slot]) {
+						// *** Disassembly not allowed, but null the item
+						it = null;
+						return;
+					}
+					
+					// *** Do remove and creation jobs ***
+					RemoveItem(it);
+					slot = slot*bj_MAX_INVENTORY + 07; // get to first item id of this recipe
+					while(udg_CItemType[slot] != 00) {
+						CreateItem(udg_CItemType[slot], x, y);
+						slot += 01;
+					}
+					
+					// -------------------------------------------------------------------------------------
+					// *** play custom sound and effect ***
+					// *** If items are disassembled too fast, sound might be playing, so first we have to stop it
+					DDGenericSound(SOUND_FILE_2, SOUND_VOL_2, x, y, SOUND_MAX_DISTANCE, SOUND_PITCH_2);
+					DestroyEffect( AddSpecialEffectTarget(ITEM_DISASSAMBLE_EFFECT, u, ATTACH_POINT) );
+					// *** Item is removed, now null
+					it = null;
+					return;
+				}
+			}
+			// *** invalid item, do null anyway ***
+			it = null;
+		}
+	}
+	
+	// ====================================================================================
+
+    function UnitRemoveItemById(unit whichUnit, integer itemId) {
+        integer i = 00;
+        item it;
+        
+        for(i=00; i < bj_MAX_INVENTORY; i+=01) {
+            it = UnitItemInSlot(whichUnit, i);
+            if (GetItemTypeId(it) == itemId) {
+                RemoveItem(it);
+                break;
+            }
+        }
+        it = null;
+    }
+
+    //===========================================================================
+    function onInit() {
+        trigger t = CreateTrigger();
+        TriggerRegisterAnyUnitEventBJ(t, EVENT_PLAYER_UNIT_PICKUP_ITEM);
+        TriggerAddCondition(t, function() -> boolean {
+			unit 	u = GetTriggerUnit();
+			integer it[];
+			integer n, i = 07;
+			integer h;
+			integer x, y, z;
+			
+			boolean b = true;
+			integer hero_item_type[];
+			
+			static if (USE_CUSTOM_SOUND)
+				timer t;
+
+			// Get hero items
+			for(x=00; x < bj_MAX_INVENTORY; x+=01)
+				hero_item_type[x] = GetItemTypeId(UnitItemInSlot(u, x));
+
+			for(n=00; n < ItemN; n+=01) {
+				h = i + bj_MAX_INVENTORY;
+				
+				x = 00;
+				it[x] = hero_item_type[x]; x = 01;
+				it[x] = hero_item_type[x]; x = 02;
+				it[x] = hero_item_type[x]; x = 03;
+				it[x] = hero_item_type[x]; x = 04;
+				it[x] = hero_item_type[x]; x = 05;
+				it[x] = hero_item_type[x]; x = 06;
+				
+				//y = 00; // N of items that hero has ()
+				//z = 00; // N of items needed ()
+				for(y=00, z=00; i < h; i+=01) {
+					if (udg_CItemType[i] == 0)
+						break;
+					
+					z += 01;
+					// Does unit contain item n
+					for(x=00; x < bj_MAX_INVENTORY; x+=01) {
+						if (it[x] == udg_CItemType[i]) {
+							// Kick out the item
+							it[x] = 00;
+							y += 01;
+							// And increase by 1
+							break;
+						}
+					}
+				}
+				
+				i = h;
+				
+				if (y == z) {
+					i -= bj_MAX_INVENTORY;
+					while(i <= h && udg_CItemType[i] != 00) {
+						UnitRemoveItemById(u, udg_CItemType[i]);
+						i += 01;
+					}
+					UnitAddItemById(u, CType[n]);
+					
+					static if (USE_CUSTOM_SOUND)
+						DDGenericSound(SOUND_FILE, SOUND_VOL, GetWidgetX(u), GetWidgetY(u), SOUND_MAX_DISTANCE, SOUND_PITCH);
+					DestroyEffect(AddSpecialEffectTarget(ITEM_COMBINE_EFFECT, u, ATTACH_POINT));
+					u = null;
+					return false;
+				}
+			}
+			
+			u = null;
+			return false;
+		});
+
+    }
+
+}
+//! endzinc
+
+

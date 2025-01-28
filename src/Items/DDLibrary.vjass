@@ -1,0 +1,1068 @@
+//==========================================================================
+//                  Dark Dragon Library Code v1.3
+//
+//	 				* Made on Warcraft III v1.30.4
+//
+//  Installation:
+//                  
+//                  1) Export instantdummy.mdx from this map and import it to your map, leave path at "war3mapImported/instantdummy.mdx"
+//                  2) Copy this trigger to your map, save your map and then change below line "// external ... " or copy "DD Dummy" and paste it in your map
+//					3) Copy and paste "Unit Chill" ability from this map to your map
+//					4) Match the rawcodes below to your map or use same ones as below
+//
+// Credits:
+//          ('Vexorian' - dummy.mdx)
+//============================================================================
+
+// *** Change "// external" to "//! external", save your map, close map, change back from "//!" to "//" and save map again.
+// *** This will create dummy in your map
+//
+// ==================================
+// external ObjectMerger w3u ushd dumy uabi "Aloc,Amrf" uble 0 ucbs 0 ucpt 0 umxp 0 umxr 0 umdl "war3mapImported\instantdummy.mdx" ushu "None" umvh 0 umvs 1 umas 1 umis 1 ucol 0 ufoo 0 uhom 1 umpi 10000 umpm 10000 usid 1 usin 1 unam "DD Dummy"
+// ==================================
+
+
+//! zinc
+
+library DDLib requires optional TimerUtils, optional GroupUtils
+{
+    
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // *** Lib constants ***
+    public {
+        
+		// ----------------------------------------------------------------------
+		// * Start modify/match rawcodes to your map
+        constant        integer     DD_DUMMYCODE    			= 'dumy';
+        constant        integer     DD_ABILITY_CROWN_FORM    	= 'Amrf';
+		constant 		integer		DD_CHILL					= 'Achl';
+		constant 		integer		DD_CHILL_BUFF				= 'Bfro';
+		// * End modify
+		// ----------------------------------------------------------------------
+		
+		
+		constant        integer     p_null          			= (0x0);
+        constant        real        DD_INTERVAL     			= .017;
+        
+                        // map min and max coords
+                        real        DDMinX          			= 0.;
+                        real        DDMinY          			= 0.;
+                        real        DDMaxX          			= 0.;
+                        real        DDMaxY          			= 0.;
+    }
+	
+	private {
+		constant 		integer 	HARVEST_ID					= 'Ahrl';
+		constant		real		TRIGGER_REFRESH_RATE		= (60.)*3.; /// damage detection trigger
+                        
+                        unit 		TreeChecker 	            = null;
+						trigger 	TempTrig 					= null;
+						integer 	NTrig 						= 0;
+						trigger 	DmgTrig[];
+						p_real 		EnumVec 					= p_null;
+						boolexpr 	EnumFilter 					= null;
+						sound		ErrorSound					= null;
+						timer		GameElapsedTimer			= null;
+		constant 		integer 	RND_INT_MAX_ARRAY_N 		= 100;
+						integer 	RndInt[], RndIntWriteN = 00, RndIntReadN = 00;
+						trigger 	TrigMouseEvent 				= null;
+						force 		RndGenForce 				= null;
+						real 		RndElapsedTime 				= 0.;
+	}
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    
+    // * types
+    public {
+        
+        // *** pointer to list of data ***
+        type    p_integer           extends     integer[8];
+        type    p_real              extends     real[8];
+        type    p_unit              extends     unit[8];
+        
+		function H2ID(handle h) -> integer {
+			return GetHandleId(h) - 0x100000;
+		}
+		
+        function New_pInteger(integer i) -> p_integer
+        { p_integer p = p_integer.create(); p[0] = i; return p; }
+        function New_pReal(real r) -> p_real
+		{ p_real p = p_real.create(); p[0] = r; return p; }
+        function New_pUnit(unit u) -> p_unit
+		{ p_unit p = p_unit.create(); p[0] = u; return p; }
+        
+		function pVector(real x, real y, real z) -> p_real {
+			p_real v = p_real.create();
+			v[0] = x; v[1] = y; v[2] = z;
+			return v;
+		}
+		
+		// --------------------------------------------------------------------------------------
+	
+		function DDMsg(string str) {
+			DisplayTimedTextFromPlayer(GetLocalPlayer(), 0., 0., 30., str);
+		}
+		
+		// --------------------------------------------------------------------------------------
+		
+		function DisplayErrorMsgPlayer(player p, real dur, string msg) {
+			if (GetLocalPlayer() == p) {
+				StartSound(ErrorSound);
+				DisplayTimedTextFromPlayer(p, 0., 0., dur, "|cffffcc00"+ msg +"|r");
+			}
+		}
+
+    }
+    
+    // -----------------------------------------------------------------------
+    // ->           ***** private globals *****
+    // -----------------------------------------------------------------------
+    private {
+        location    TempLoc         = Location(0., 0.);
+        timer       TimerStack[];
+        integer     TimN            = 0;
+        group       GroupStack[];
+        integer     GrpN            = 0;
+        unit        DummyStack[];
+        integer     DumN            = 0;
+		integer 	TimTicks[];
+		integer 	TimData[];
+		timer		TimTim1[];
+		timer		TimTim2[];
+		
+		
+		integer		UnitStackData	= 0;
+		unit		UnitStack[];
+		integer		US_N			= 0;
+        
+        public hashtable   DDHT            = InitHashtable();
+    }
+    // -----------------------------------------------------------------------
+    
+   public {
+   
+        // *** Global funcs
+        
+        function Pw_2(real x) -> real {
+            return x*x;
+        }
+		
+		function DDHypot(real x, real y) -> real {
+			return (x*x) + (y*y);
+		}
+        
+        function DDTerrZ(real x, real y) -> real {
+            MoveLocation(TempLoc, x, y);
+            return GetLocationZ(TempLoc);
+        }
+        
+        function DDWidgetTerrZ(widget w) -> real {
+			MoveLocation(TempLoc, GetWidgetX(w), GetWidgetY(w));
+            return GetLocationZ(TempLoc);
+        }
+		
+		function DDEffectTerrZ(effect e) -> real {
+			MoveLocation(TempLoc, BlzGetLocalSpecialEffectX(e), BlzGetLocalSpecialEffectY(e));
+            return GetLocationZ(TempLoc);
+		}
+		
+		function DDGetUnitZ(unit u) -> real {
+			return BlzGetUnitZ(u) + GetUnitFlyHeight(u);
+		}
+        
+        // =================================================================
+        //              *** Save Handle data ****
+        // =================================================================
+        
+        function DDSet(handle h, integer id, integer val) {
+            SaveInteger(DDHT, id+1, GetHandleId(h), val);
+        }
+        
+        function DDGet(handle h, integer id) -> integer {
+            return LoadInteger(DDHT, id+1, GetHandleId(h));
+        }
+		
+		function DDHas(handle h, integer id) -> boolean {
+			return HaveSavedInteger(DDHT, id+1, GetHandleId(h));
+		}
+		
+		function DDFlush(integer id) {
+			FlushChildHashtable(DDHT, id+1);
+		}
+        
+        // =================================================================
+        //              *** Timer Handling ****
+        // =================================================================
+		
+		// -> check if timer is recycled
+		function DDIsTimRecycled(timer t) -> boolean {
+			integer i;
+			for(i=TimN-01; i >= 00; i-=01)
+				if (TimerStack[i] == t)
+					return true;
+			return false;
+		}
+		
+        // -> Load timer for recycling
+        function DDLoadTim() -> timer {
+            static if (LIBRARY_TimerUtils) { return NewTimer(); }
+            else {
+                if (TimN > 0) {
+                    TimN -= 1;
+                    return TimerStack[TimN];
+                }
+                return CreateTimer();
+            }
+        }
+        
+        // -> recycle loaded timer
+        function DDRecycleTim(timer t) {
+            static if (LIBRARY_TimerUtils) { ReleaseTimer(t); }
+            else {
+				static if (DEBUG_MODE)
+					if (DDIsTimRecycled(t)) {
+						DDMsg("Multiple recycle of timer!");
+						return;
+					}
+                TimerStack[TimN] = t;
+                TimN += 1;
+            }
+        }
+        
+        // ** Get data stored on expired timer
+        function DDTimData() -> integer {
+            return TimData[H2ID(GetExpiredTimer())];
+        }
+		
+		// *** Custom timer tick
+        function DDCTimTick(timer t) -> integer {
+            return TimTicks[H2ID(t)];
+        }
+		
+		// *** Gets current tick and adds next one ***
+        function DDTimTick() -> integer {
+			integer id = H2ID(GetExpiredTimer());
+			TimTicks[id] += 01;
+            return TimTicks[id];
+        }
+        
+        // ** start timer with data storage
+        function DDStartTim(real secs, boolean looping, integer pdata, code func) -> timer {
+            timer t = DDLoadTim();
+			
+			TimData[H2ID(t)] = pdata;
+            TimerStart(t, secs, looping, func);
+            return t;
+        }
+        
+        // ** start timer with data storage, and launches it instantly
+        function DDStartTimInst(real secs, boolean looping, integer pdata, code func) -> timer {
+            timer t1 = DDLoadTim(), t2 = DDLoadTim(), t3 = DDLoadTim();
+            
+			TimData[H2ID(t2)] = pdata;
+            TimerStart(t2, 0., false, func);
+			
+			TimTim1[H2ID(t3)] = t1;
+			TimTim2[H2ID(t3)] = t2;
+			TimerStart(t3, .005, false, function() {
+				timer t = GetExpiredTimer();
+				integer id = H2ID(t);
+				
+				PauseTimer(t);
+				static if (LIBRARY_TimerUtils)
+					ReleaseTimer(t);
+				else {
+					TimerStack[TimN] = t;
+					TimN += 1;
+				}
+				
+				t = TimTim2[id];
+				if (DDIsTimRecycled(t))
+					t = TimTim1[id];
+				TimTicks[H2ID(t)] = 00;
+				PauseTimer(t);
+				static if (LIBRARY_TimerUtils)
+					ReleaseTimer(t);
+				else {
+					TimerStack[TimN] = t;
+					TimN += 1;
+				}
+			});
+			
+			TimData[H2ID(t1)] = pdata;
+            TimerStart(t1, secs, looping, func);
+            
+            return t1;
+        }
+        
+        // *** Quit expired timer ***
+        function DDQuitTim() {
+			timer t = GetExpiredTimer();
+			TimTicks[H2ID(t)] = 00;
+            PauseTimer(t);
+			static if (LIBRARY_TimerUtils)
+				ReleaseTimer(t);
+            else {
+                TimerStack[TimN] = t;
+                TimN += 1;
+            }
+        }
+		
+		function DDQuitTimEx(timer t) {
+			TimTicks[H2ID(t)] = 00;
+            PauseTimer(t);
+			static if (LIBRARY_TimerUtils)
+				ReleaseTimer(t);
+            else {
+                TimerStack[TimN] = t;
+                TimN += 1;
+            }
+        }
+        
+        // =================================================================
+        //              *** Group Handling ****
+        // =================================================================
+        
+        // -> Load timer for recycling
+        function DDLoadGroup() -> group {
+            static if (LIBRARY_GroupUtils) { return NewGroup(); }
+            else {
+                if (GrpN > 0) {
+                    GrpN -= 1;
+                    return GroupStack[GrpN];
+                }
+                return CreateGroup();
+            }
+        }
+        
+        // -> Recycle group
+        function DDRecycleGroup(group g) {
+            static if (LIBRARY_GroupUtils) { ReleaseGroup(g); }
+            else {
+				GroupClear(g);
+                GroupStack[GrpN] = g;
+                GrpN += 1;
+            }
+        }
+        
+        // --------------------------------------------------------
+        // -- Quick filter area
+		private integer GroupFilterData = 00;
+		
+        function DDGroupFilterArea(real x, real y, real radius, integer data, code func) {
+            group g = DDLoadGroup();
+			GroupFilterData = data;
+            GroupEnumUnitsInRange(g, x, y, radius, Filter(func));
+            DDRecycleGroup(g);
+        }
+        
+        // --------------------------------------------------------
+        // -- Quick filter rect
+        function DDGroupFilterRect(rect r, integer data, code func) {
+            group g = DDLoadGroup();
+			GroupFilterData = data;
+            GroupEnumUnitsInRect(g, r, Filter(func));
+            DDRecycleGroup(g);
+        }
+        
+		function DDGFilterData() -> integer {
+			return GroupFilterData;
+		}
+		
+		function DDGFilterDataSet(integer data) {
+			GroupFilterData = data;
+		}
+		
+		// --------------------------------------------------------
+        // *** Filtrates and fills units in to memory
+        function DDGroupFillMemArea(real x, real y, real radius, integer data, code filter) {
+			group g = DDLoadGroup();
+			boolexpr exp = And(Filter(filter), Filter(function() -> boolean {
+				UnitStack[US_N] = GetFilterUnit();
+				US_N += 1;
+				return false;
+			}));
+			US_N = 0;
+			UnitStack[0] = null;
+			UnitStackData = data;
+			GroupEnumUnitsInRange(g, x, y, radius, exp);
+			DDRecycleGroup(g);
+			DestroyBoolExpr(exp);
+			exp = null;
+		}
+		
+		function DDGroupFillMemRect(rect r, integer data, code filter) {
+			group g = DDLoadGroup();
+			boolexpr exp = And(Filter(filter), Filter(function() -> boolean {
+				UnitStack[US_N] = GetFilterUnit();
+				US_N += 1;
+				return false;
+			}));
+			US_N = 0;
+			UnitStack[0] = null;
+			UnitStackData = data;
+			GroupEnumUnitsInRect(g, r, exp);
+			DDRecycleGroup(g);
+			DestroyBoolExpr(exp);
+			exp = null;
+		}
+		
+		function DDMemUnitN() -> integer { return US_N; }
+		function DDMemUnitData() -> integer { return UnitStackData; }
+		
+		function DDMemUnit(integer index) -> unit {
+			if (US_N == 0) return null;
+			debug {
+				if (index < 0) {
+					BJDebugMsg("DDMemUnit: index less than 0");
+					index = 0;
+				} else if (index >= US_N) {
+					BJDebugMsg("DDMemUnit: index greater than units alloc size");
+					index = 0;
+				}
+			}
+			return UnitStack[index];
+		}
+		// --------------------------------------------------------
+		
+		// --------------------------------------------------------
+		// *** 
+        
+        // =================================================================
+        //              *** Dummy Handling ****
+        // =================================================================
+        
+        // -> Load dummy for recycling
+        function DDLoadDummy() -> unit {
+            if (DumN > 0) {
+                DumN -= 1;
+                PauseUnit(DummyStack[DumN], false);
+                return DummyStack[DumN];
+            }
+            return CreateUnit(Player(0xF), DD_DUMMYCODE, DDMaxX, DDMaxY, 0.);
+        }
+        
+        // *** prepares/setups dummy for spell casting
+        function DDLoadSpellDummy(player owner, real x, real y, integer abil, integer abilLevel) -> unit {
+            unit dummy = DDLoadDummy();
+            SetUnitOwner(dummy, owner, false);
+            SetUnitX(dummy, x);
+            SetUnitY(dummy, y);
+            if (abil != p_null) {
+                UnitAddAbility(dummy, abil);
+                SetUnitAbilityLevel(dummy, abil, abilLevel);
+            }
+            return dummy;
+        }
+        
+        // -> Recycle dummy
+        function DDRecycleDummy(unit u) {
+            PauseUnit(u, true);
+            DummyStack[DumN] = u;
+            DumN += 1;
+        }
+        
+        // -> Recycle dummy timed
+        function DDRecycleDummyTimed(unit u, real secs) {
+            DDStartTim(secs, false, New_pUnit(u), function() {
+                DDRecycleDummy(p_unit(DDTimData())[0]);
+                p_unit(DDTimData()).destroy();
+                DDQuitTim();
+            });
+        }
+        
+        // *** shares vision for timed amount, usually for dummy casting
+        function DDUnitShareVisionTimed(unit u, player toP, real secs) {
+            p_integer pi = p_integer.create();
+            
+            pi[0] = New_pUnit(u);
+            pi[1] = GetPlayerId(toP);
+            UnitShareVision(u, toP, true);
+            DDStartTim(secs, false, pi, function() {
+                p_integer pi = DDTimData();
+                
+                UnitShareVision(p_unit(pi[0])[0], Player(pi[1]), false);
+                p_unit(pi[0])[0] = null;
+                p_unit(pi[0]).destroy();
+                pi.destroy();
+                DDQuitTim();
+            });
+            
+        }
+		
+        // *** Remove ability timed ***
+        private struct uratimed {
+            private {
+                unit u;
+                integer abil;
+            }
+            
+            static method create(unit whichUnit, integer id, real time) -> uratimed {
+                thistype this = allocate();
+                
+                u = whichUnit;
+                abil = id;
+                DDStartTim(time, false, this, function() {
+                    thistype this = DDTimData();
+                    UnitRemoveAbility(u, abil);
+                    DDQuitTim();
+                    deallocate();
+                });
+                
+                return 0;
+            }
+        }
+        function DDRemoveAbilityTimed(unit u, integer abil, real secs) { uratimed.create(u, abil, secs); }
+        
+		function DDSpellDamage(unit u, unit v, real dmg) {
+			real life = GetWidgetLife(v);
+			real dmgfactor = 1.;
+			
+			if (IsUnitType(v, UNIT_TYPE_HERO)) {
+				if (UnitHasItemOfTypeBJ(v, 'brac'))
+					dmgfactor = .5;
+				else
+					dmgfactor = .75;
+			}
+			
+			if (life > dmg*dmgfactor) {
+				SetWidgetLife(v, life-(dmg*dmgfactor));
+			} else
+				UnitDamageTarget(u, v, 99999., false, true, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS);
+		}
+		
+		// -------------------------------------------------------------------------------------
+		// *** Chills target unit
+		private struct chill {
+			unit u, dmy;
+			real dur;
+			
+			static chill Data[];
+			//static key CHILL_KEY;
+		}
+		
+		function DDUnitChill(player p, unit u, real dur) -> boolean {
+			//chill c = DDGet(u, chill.CHILL_KEY);
+			chill c = chill.Data[H2ID(u)];
+			unit d;
+			real rad;
+			
+			
+			if (c == p_null) {
+				c = chill.create();
+				c.u = u; c.dur = dur;
+				chill.Data[H2ID(u)] = c;
+				//DDSet(u, chill.CHILL_KEY, c);
+				
+				d = DDLoadDummy();
+				c.dmy = d;
+				rad = GetUnitFacing(d) * bj_DEGTORAD;
+				SetUnitOwner(d, p, false);
+				UnitAddAbility(d, DD_CHILL);
+				SetUnitX(d, GetUnitX(u) - 20.*Cos(rad));
+				SetUnitY(d, GetUnitY(u) - 20.*Sin(rad));
+				
+				if (IssueTargetOrder(d, "frostnova", u)) {
+					DDStartTim(.1, true, c, function() {
+						chill c = DDTimData();
+						
+						c.dur -= .1;
+						if (c.dur <= 0. || GetUnitAbilityLevel(c.u, DD_CHILL_BUFF) == 00) {
+							UnitRemoveAbility(c.u, DD_CHILL_BUFF);
+							UnitRemoveAbility(c.dmy, DD_CHILL);
+							DDRecycleDummy(c.dmy);
+							chill.Data[H2ID(c.u)] = p_null;
+							//DDSet(c.u, chill.CHILL_KEY, p_null);
+							c.u = null;
+							c.destroy();
+							DDQuitTim();
+						}
+					});
+					return true;
+				}
+				
+				return false;
+			}
+			
+			c.dur = dur;
+			
+			return true;
+		}
+		
+		// ------------------------------------------------------------------------------------------------
+		
+		struct fade {
+			unit u;
+			real trans;
+			real rate, e_trans, dur;
+			
+			static constant real INTERVAL = .1;
+			
+			static method create(unit u, real dur, real s_trans, real e_trans) -> fade {
+				fade this = allocate();
+				
+				this.u = u;
+				this.trans = s_trans;
+				this.rate = ((e_trans-s_trans)/dur)*fade.INTERVAL;
+				this.e_trans = e_trans;
+				this.dur = dur;
+				
+				return this;
+			}
+		}
+		
+		// *** Fades unit over time ***
+		public function DDFadeUnit(unit u, integer from_alpha, integer to_alpha, real duration) {
+			fade f = fade.create(u,
+								 duration,
+								 from_alpha/2.55,
+								 to_alpha/2.55);
+			
+			SetUnitVertexColor(u, 255, 255, 255, from_alpha);
+			// --- Start thread ---
+			DDStartTim(fade.INTERVAL, true, f, function() {
+				fade f = DDTimData();
+				
+				f.trans += f.rate;
+				f.dur -= fade.INTERVAL;
+				SetUnitVertexColor(f.u, 255, 255, 255, R2I(f.trans*2.55));
+				
+				if (f.dur < 0.) {
+					SetUnitVertexColor(f.u, 255, 255, 255, R2I(f.e_trans*2.55));
+					f.u = null;
+					f.destroy();
+					DDQuitTim();
+				}
+			});
+					   
+		}
+		
+		// ------------------------------------------------------------------------------------------------
+		
+        // Check if unit is invulnerable
+        function DDIsUnitInvulnerable(unit u) -> boolean {
+            unit d = DDLoadDummy();
+            real hp = GetWidgetLife(u);
+            boolean flag;
+            
+            UnitDamageTarget(d, u, 1., true, false, null, null, null);
+            flag = GetWidgetLife(u) == hp;
+            SetWidgetLife(u, hp);
+            DDRecycleDummy(d);
+            
+            return flag;
+        }
+        
+        // *** check if unit is ward
+        function DDIsUnitWard(unit whichUnit) -> boolean {
+            return GetUnitDefaultMoveSpeed(whichUnit) == 0.;
+        }
+		
+        // =================================================================
+        //              *** Effect Handling ****
+        // =================================================================
+        
+        // -----------------------------------------------
+        // *** Define movable effect
+        struct ddeffect {
+            private {
+                effect e;
+                real fac; // facing angle in radians
+                real effZ; // pitch in radians
+                real decay;
+				real stepTrans, cTrans, eTrans;
+                
+                static constant real        EFFECT_DECAY        = 5.;
+            }
+            
+            // =========================================================================================
+            // =========================================================================================
+            static method create(string mdl, real x, real y, real facRad, real size) -> ddeffect {
+                ddeffect this = allocate();
+                
+                this.e 		= AddSpecialEffect(mdl, x, y);
+				this.fac 	= facRad;
+				this.effZ	= 0.;
+                BlzSetSpecialEffectRoll(this.e, facRad);
+				BlzSetSpecialEffectScale(this.e, size);
+                
+                return this;
+            }
+			
+			static method createZ(string mdl, real x, real y, real z, real facRad, real size) -> ddeffect {
+                ddeffect this = allocate();
+                
+                this.e 		= AddSpecialEffect(mdl, x, y);
+				this.fac 	= facRad;
+				this.effZ	= z-DDTerrZ(x, y);
+                BlzSetSpecialEffectRoll(this.e, facRad);
+				BlzSetSpecialEffectScale(this.e, size);
+				BlzSetSpecialEffectZ(this.e, z);
+                
+                return this;
+            }
+            
+            // -----------------
+            method destroy() {
+                DestroyEffect(this.e);
+                this.e = null;
+                deallocate();
+            }
+            
+            // *** destroys effect timed
+            method destroyx(real decayTime) {
+                DDStartTim(decayTime, false, this, function() {
+					ddeffect se = DDTimData();
+					BlzSetSpecialEffectPosition(se.e, DDMaxX, DDMaxY, 0.);
+                    DestroyEffect(se.e);
+					se.e = null;
+					se.deallocate();
+                    DDQuitTim();
+                });
+            }
+            // =========================================================================================
+            // =========================================================================================
+            
+			
+            
+			method operator Z=(real z)					{ BlzSetSpecialEffectZ(this.e, z); }
+			
+            method operator X() -> real                 { return BlzGetLocalSpecialEffectX(this.e); }
+            method operator Y() -> real                 { return BlzGetLocalSpecialEffectY(this.e); }
+            method operator Z() -> real                 { return BlzGetLocalSpecialEffectZ(this.e); }
+            method operator WZ() -> real                { return DDEffectTerrZ(this.e); }
+            method operator Height() -> real            { return this.Z-this.WZ; }
+            
+            method operator Facing=(real facRad)        { BlzSetSpecialEffectRoll(this.e, facRad); this.fac = facRad; }
+            method operator Facing() -> real            { return this.fac; }
+			
+			method Position(real x, real y)				{ BlzSetSpecialEffectPosition(this.e, x, y, this.effZ+this.WZ); }
+			method PositionZ(real x, real y, real z)	{ BlzSetSpecialEffectPosition(this.e, x, y, z); }
+			method Animation(animtype at)				{ BlzPlaySpecialEffect(this.e, at); }
+			method AnimationSpeed(real animSpeed)		{ BlzSetSpecialEffectTimeScale(this.e, animSpeed/100.); }
+			
+			//method operator Pitch=(integer pitch)		{ SetUnitAnimationByIndex(u, pitch); }
+            
+            //method Face(widget w) { Facing = Atan2(GetWidgetY(w)-Y, GetWidgetX(w)-X)*bj_RADTODEG; }
+			
+			method Fade(real startTransparency, real endTransparency, real duration) {
+				this.cTrans = startTransparency;
+				this.eTrans = endTransparency;
+				this.stepTrans = .1*(endTransparency-startTransparency) / duration;
+				
+				BlzSetSpecialEffectAlpha(this.e, R2I(startTransparency*2.55));
+				
+				DDStartTim(.1, true, this, function() {
+					ddeffect dde = DDTimData();
+					
+					dde.cTrans += dde.stepTrans;
+					if (dde.stepTrans > 0.)
+						if (dde.cTrans >= dde.eTrans) {
+							BlzSetSpecialEffectAlpha(dde.e, R2I(dde.eTrans*2.55));
+							DDQuitTim();
+							return;
+						}
+					else
+						if (dde.cTrans <= dde.eTrans) {
+							BlzSetSpecialEffectAlpha(dde.e, R2I(dde.eTrans*2.55));
+							DDQuitTim();
+							return;
+						}
+					BlzSetSpecialEffectAlpha(dde.e, R2I(dde.cTrans*2.55));
+				});
+			}
+			
+        }
+        
+		private type timedeffect extends effect[01];
+		
+		function DDDestroyEffectTimed(effect e, real secs) {
+			timedeffect te = timedeffect.create();
+			te[00] = e;
+			DDStartTim(secs, true, te, function() {
+				timedeffect te = DDTimData();
+				DestroyEffect(te[00]);
+				te.destroy();
+				DDQuitTim();
+			});
+		}
+    }
+	
+	// ----------------------------------------------------------------------------
+    // *** Main damage detection function, registers any damage dealt to units ***
+    public function DDTriggerRegisterAnyUnitDamaged(trigger t) {
+        DmgTrig[NTrig] = t;
+        NTrig += 1;
+    }
+    
+    function InitDamageDetection() {
+		code c = function() {
+			if (TempTrig != null)
+				DestroyTrigger(TempTrig);
+			
+			TempTrig = CreateTrigger();
+			TriggerRegisterEnterRectSimple(TempTrig, bj_mapInitialPlayableArea);
+			TriggerAddCondition(TempTrig, function() -> boolean {
+				integer i;
+				
+				// *** Check if we need to exec triggers or register an unit ***
+				if (GetTriggerEventId() == EVENT_UNIT_DAMAGED) {
+					for(i=0; i < NTrig; i+=1)
+						if (IsTriggerEnabled(DmgTrig[i]))
+							if (TriggerEvaluate(DmgTrig[i]))
+								TriggerExecute(DmgTrig[i]);
+				}
+				else
+					// *** Register new unit ***
+					TriggerRegisterUnitEvent(GetTriggeringTrigger(),
+											 GetTriggerUnit(),
+											 EVENT_UNIT_DAMAGED);
+				
+				return false;
+			});
+			
+			DDGroupFilterRect(bj_mapInitialPlayableArea, 00, function() -> boolean {
+				TriggerRegisterUnitEvent(TempTrig, GetFilterUnit(), EVENT_UNIT_DAMAGED);
+				return false;
+			});
+		};
+		trigger t = CreateTrigger();
+		
+		TriggerAddAction(t, c);
+		TriggerExecute(t);
+		DestroyTrigger(t);
+		TimerStart(CreateTimer(), TRIGGER_REFRESH_RATE, true, c);
+		t = null;
+    }
+	
+	// ---------------------------------------------------------------------------------
+	
+	// *** Main enum dests in range function ***
+    public function DDEnumDestsInRange(p_real vec, real radius, boolexpr filter, code pfunc) {
+        rect r = Rect(vec[0]-radius, vec[1]-radius, vec[0]+radius, vec[1]+radius);
+		
+		 EnumVec[0] = vec[0];
+		 EnumVec[1] = vec[1];
+		 EnumVec[2] = radius;
+            
+        if (filter != null) filter = And(EnumFilter, filter);
+        else filter = EnumFilter;
+        EnumDestructablesInRect(r, filter, pfunc);
+		
+        if (filter != EnumFilter) { DestroyBoolExpr(filter); filter = null; }
+		RemoveRect(r);
+		r = null;
+    }
+        
+    function InitEnumDests() {
+        EnumVec = p_real.create();
+        EnumFilter = Filter(function() -> boolean {
+            return Pw_2(EnumVec[0]-GetDestructableX(GetFilterDestructable())) + Pw_2(EnumVec[1]-GetDestructableY(GetFilterDestructable())) < Pw_2(EnumVec[2]);
+        });
+    }
+    
+	// --------------------------------------------------------------------------------------
+	
+	// *** checks is destruct tree ***
+    public function DDIsDestructableTree(destructable d) -> boolean {
+        if (d != null) {
+            PauseUnit(TreeChecker, false);
+            if (IssueTargetOrder(TreeChecker, "harvest", d)) {
+                PauseUnit(TreeChecker, true);
+                return true;
+            }
+            PauseUnit(TreeChecker, true);
+        }
+        return false;
+    }
+
+    function InitDestTreeCheck() {
+        TreeChecker = CreateUnit(Player(bj_PLAYER_NEUTRAL_EXTRA), DD_DUMMYCODE, DDMaxX, DDMaxY, 0.);
+        UnitAddAbility(TreeChecker, HARVEST_ID);
+        PauseUnit(TreeChecker, true);
+    }
+	
+	// --------------------------------------------------------------------------------------
+    
+	public function DDNewTextTagUnit(unit whichUnit, string text, real dur, real red, real green, real blue, real transparency) {
+		CreateTextTagUnitBJ( text, whichUnit, 0., 11.00, red, green, blue, transparency );
+		SetTextTagPermanentBJ( bj_lastCreatedTextTag, false );
+		SetTextTagVelocityBJ( bj_lastCreatedTextTag, 48.00, 90 );
+		SetTextTagFadepointBJ( bj_lastCreatedTextTag, dur-1.25 );
+		SetTextTagLifespanBJ( bj_lastCreatedTextTag, dur );
+	}
+	
+	// --------------------------------------------------------------------------------------
+	
+	struct cameranoisedata {
+		player p[12];
+		integer n=00;
+	}
+	
+	public function DDCameraSetSourceNoiseForPlayers(real x, real y, real mag, real vel, real maxDist, real duration) {
+		integer i;
+		real d;
+		cameranoisedata cnd = cameranoisedata.create();
+		
+		for (i=00; i < bj_MAX_PLAYERS; i+=01) {
+			if (GetLocalPlayer() == Player(i)) {
+				d = SquareRoot( Pw_2(GetCameraTargetPositionX()-x) + Pw_2(GetCameraTargetPositionY()-y) );
+				if (d < maxDist) {
+					cnd.p[cnd.n] = Player(i);
+					CameraSetSourceNoise(mag-(d*(mag/maxDist)), vel-(d*(vel/maxDist)));
+					CameraSetTargetNoise(mag-(d*(mag/maxDist)), vel-(d*(vel/maxDist)));
+					cnd.n += 01;
+				}
+			}
+		}
+		
+		DDStartTim(duration, false, cnd, function() {
+			cameranoisedata cnd = DDTimData();
+			
+			while(cnd.n != 00) {
+				cnd.n -= 01;
+				if (GetLocalPlayer() == cnd.p[cnd.n])
+					CameraSetSourceNoise(0., 0.);
+					CameraSetTargetNoise(0., 0.);
+			}
+			
+			cnd.destroy();
+			DDQuitTim();
+		});
+	}
+	
+	// --------------------------------------------------------------------------------------
+    
+	hashtable GenSndTable = null;
+	
+    public function DDGenericSound(string file, real vol, real x, real y, real mxDist, real pitch) {
+		integer sh = StringHash(file),
+				snd_n = LoadInteger(GenSndTable, sh, 04);
+		sound s = LoadSoundHandle(GenSndTable, sh, snd_n);
+		real d;
+		integer i;
+        
+		if (s == null) {
+			s = CreateSound(file, false, false, false, 10, 10, "");
+			SaveSoundHandle(GenSndTable, sh, snd_n, s);
+		} else if (GetSoundIsPlaying(s)) {
+			StopSound(s, false, false);
+		}
+		SetSoundPitch(s, pitch);
+		snd_n += 01;
+		if (snd_n == 04)
+			snd_n = 00;
+		SaveInteger(GenSndTable, sh, 04, snd_n);
+		
+		// Play sound and shake camera for players within spell cast range
+		for (i=00; i < bj_MAX_PLAYERS; i+=01) {
+			if (GetLocalPlayer() == Player(i)) {
+				d = SquareRoot( DDHypot(GetCameraTargetPositionX()-x, GetCameraTargetPositionY()-y) );
+				if (d < mxDist) {
+					SetSoundVolume(s, R2I((vol-d*(vol/mxDist))*1.27));
+					StartSound(s);
+				}
+			}
+		}
+    }
+	
+	public function DDGetGameElapsedTime() -> real {
+		return TimerGetElapsed(GameElapsedTimer);
+	}
+	
+	public function DDGetRndReal(real min, real max) -> real {
+		real rnd = ((max-min)/1000000.)*I2R(RndInt[RndIntReadN]);
+		debug if (max > 1000000.)
+			DDMsg("ERROR: \"DDGetRndNumber\" - 'max' variable is greater than 1000000!");
+		RndIntReadN += 01; if (RndIntReadN == RND_INT_MAX_ARRAY_N) RndIntReadN = 00;
+		return min + rnd;
+	}
+	
+	public function DDGetRndInt(integer min, integer max) -> integer {
+		return R2I( DDGetRndReal(I2R(min), I2R(max)) );
+	}
+	
+	// ====================================================================
+    function onInit() {
+		InitDamageDetection();
+		InitDestTreeCheck();
+		InitEnumDests();
+		
+        DDMinX = GetRectMinX(bj_mapInitialPlayableArea);
+        DDMinY = GetRectMinY(bj_mapInitialPlayableArea);
+        DDMaxX = GetRectMaxX(bj_mapInitialPlayableArea);
+        DDMaxY = GetRectMaxY(bj_mapInitialPlayableArea);
+		
+		GenSndTable = InitHashtable();
+		
+		ErrorSound = CreateSound( "Sound\\Interface\\Error.wav", false, false, false, 10, 10, "" );
+		SetSoundParamsFromLabel( ErrorSound, "InterfaceError" );
+		SetSoundDuration( ErrorSound, 614 );
+		SetSoundVolume(ErrorSound, 127);
+		
+		GameElapsedTimer = CreateTimer();
+		TimerStart(GameElapsedTimer, 10800., false, null);
+		
+		for(RndIntWriteN=00; RndIntWriteN < RND_INT_MAX_ARRAY_N; RndIntWriteN+=01)
+			RndInt[RndIntWriteN] = GetRandomInt(00, 1000000);
+		
+		RndIntWriteN = 00;
+		RndGenForce = CreateForce();
+		TrigMouseEvent = CreateTrigger();
+		ForForce(bj_FORCE_ALL_PLAYERS, function() {
+			if (GetPlayerController(GetEnumPlayer()) == MAP_CONTROL_USER)
+				TriggerRegisterPlayerEvent(TrigMouseEvent, GetEnumPlayer(), EVENT_PLAYER_MOUSE_MOVE);
+		});
+		TriggerAddCondition(TrigMouseEvent, Condition(function() -> boolean {
+			real mouseN;
+			boolean xFirst = GetRandomInt(00, 01) == 01;
+			
+			if (!IsPlayerInForce(GetTriggerPlayer(), RndGenForce)) {
+				// example: input x = 578.4571496
+				//			output rnd n = 4571498
+				if (xFirst)
+					mouseN = RAbsBJ(BlzGetTriggerPlayerMouseX()) * 100.;
+				else
+					mouseN = RAbsBJ(BlzGetTriggerPlayerMouseY()) * 100.;
+				if (mouseN == 0.)
+					return false;
+				//mouseN *= 100.;
+				RndInt[RndIntWriteN] = R2I((mouseN - I2R(R2I(mouseN))) * 1000.);
+				//DDMsg(I2S(RndInt[RndIntWriteN]));
+				//RndIntWriteN += 01; if (RndIntWriteN == RND_INT_MAX_ARRAY_N) RndIntWriteN = 00;
+				
+				if (xFirst)
+					mouseN = RAbsBJ(BlzGetTriggerPlayerMouseY()) * 100.;
+				else
+					mouseN = RAbsBJ(BlzGetTriggerPlayerMouseX()) * 100.;
+				RndInt[RndIntWriteN] += R2I((mouseN - I2R(R2I(mouseN))) * 1000.)*1000;
+				//DDMsg(I2S(RndInt[RndIntWriteN]));
+				RndIntWriteN += 01; if (RndIntWriteN == RND_INT_MAX_ARRAY_N) RndIntWriteN = 00;
+				ForceAddPlayer(RndGenForce, GetTriggerPlayer());
+			}
+			
+			if (DDGetGameElapsedTime()-RndElapsedTime > .125) {
+				ForceClear(RndGenForce);
+				RndElapsedTime = DDGetGameElapsedTime();
+			}
+			
+			return false;
+		}));
+    }
+    
+}
+
+//! endzinc
+
+
+
+
+
+
+
+
+
+
+

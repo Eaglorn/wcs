@@ -1,5 +1,5 @@
 if Debug then Debug.beginFile "SyncStream" end
-    --[[
+--[[
     By Trokkin
     Provides functionality to designed to safely sync arbitrary amounts of data.
     Uses timers to spread BlzSendSyncData calls over time.
@@ -15,13 +15,13 @@ if Debug then Debug.beginFile "SyncStream" end
 OnInit.module("Sync Stream", function()
     --CONFIGURATION
     local PREFIX = "Sync"
-    local CHUNK_SIZE = 200              --string length per chunk
-    local PACKAGE_PER_TICK = 32         --amount of packages per interval
-    local PACKAGE_TICK_PER_SECOND = 32  --interval in which the syncing takes place
+    local CHUNK_SIZE = 200             --string length per chunk
+    local PACKAGE_PER_TICK = 32        --amount of packages per interval
+    local PACKAGE_TICK_PER_SECOND = 32 --interval in which the syncing takes place
     local MAX_IDS = 999
     local MAX_CHUNKS = 99
-    local DELIMITER = "!"               --function delimiter character
-    --END CONFIGURATION 
+    local DELIMITER = "!" --function delimiter character
+    --END CONFIGURATION
     --internal
     local streams = {}
     ---Returns the function from the given string. Also works with functions within tables, the keys MUST be of string type.
@@ -72,6 +72,7 @@ OnInit.module("Sync Stream", function()
         end
         return queue
     end
+
     function syncQueue:pop()
         if self.next_chunk > #self.chunks then
             self = nil
@@ -85,7 +86,8 @@ OnInit.module("Sync Stream", function()
         --print(self.id, self.next_chunk)
         if self.next_chunk == 0 then
             local maxChunkDigit0 = fillBlankDigits(MAX_CHUNKS, #self.chunks)
-            package = DELIMITER .. self.callbackName .. DELIMITER .. package .. maxChunkDigit0 .. #self.chunks .. self.length
+            package = DELIMITER ..
+            self.callbackName .. DELIMITER .. package .. maxChunkDigit0 .. #self.chunks .. self.length
             --print("OVERALL PACKAGE LENGTH: " .. self.length)
             --print(package)
         else
@@ -97,6 +99,7 @@ OnInit.module("Sync Stream", function()
             self.next_chunk = self.next_chunk + 1
         end
     end
+
     --[ PROMISE CLASS ]--
     ---@class promise
     ---@field id integer
@@ -116,7 +119,7 @@ OnInit.module("Sync Stream", function()
             queue = nil,
         }, promise)
     end
-    
+
     function promise:consume(chunk_id, package)
         --print("prev: " .. self.next_chunk)
         if self.length and self.length <= (self.next_chunk - 1) * CHUNK_SIZE then
@@ -133,6 +136,7 @@ OnInit.module("Sync Stream", function()
         --    self.callback(table.concat(self.chunks), GetTriggerPlayer())
         --end
     end
+
     local syncTimer
     --[ SYNC STREAM CLASS ]--
     local syncTrigger ---@type trigger
@@ -161,7 +165,7 @@ OnInit.module("Sync Stream", function()
     ---@param callBackFunctionName string
     function SyncStream.sync(whichPlayer, getLocalData, callBackFunctionName)
         if not getLocalData then return end
-        local self = streams[GetPlayerId(whichPlayer)]  ---@type SyncStream
+        local self = streams[GetPlayerId(whichPlayer)] ---@type SyncStream
         if #self.promises == MAX_IDS then
             error("WARNING: Max ID digits reached!")
             return
@@ -181,17 +185,18 @@ OnInit.module("Sync Stream", function()
         end
         self.promises[promise.id] = promise
     end
+
     OnInit.final(function()
         syncTimer = CreateTimer()
         localPlayer = GetLocalPlayer()
         local playerSyncedPromises = {}
         for i = 0, bj_MAX_PLAYER_SLOTS - 1 do
-            streams[i] = CreateSyncStream(Player(i))    ---@type SyncStream
+            streams[i] = CreateSyncStream(Player(i)) ---@type SyncStream
             --new
             playerSyncedPromises[Player(i)] = {}
         end
         --- Setup sender timer
-        local s = streams[GetPlayerId(GetLocalPlayer())]    ---@type SyncStream
+        local s = streams[GetPlayerId(GetLocalPlayer())] ---@type SyncStream
         if not s.is_local then
             print("SyncStream panic: local stream is not local")
             return
@@ -238,15 +243,17 @@ OnInit.module("Sync Stream", function()
             --and the position will be adjusted.
             --if not, then default position is 1.
             if package:sub(1, 1):match(DELIMITER) then
-                _, startPos, funcName = package:find( DELIMITER .. "(\x25a[\x25w_.]*)" .. DELIMITER)
+                _, startPos, funcName = package:find(DELIMITER .. "(\x25a[\x25w_.]*)" .. DELIMITER)
             end
             local id = tonumber(string.sub(package, startPos + 1, startPos + #tostring(MAX_IDS)))
             local promise = stream.promises[id]
             --local chunk_id = promise.queue.id ignore this comment
-            local chunk_id = tonumber(string.sub(package, startPos + #tostring(MAX_IDS) + 1 , startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS)))
+            local chunk_id = tonumber(string.sub(package, startPos + #tostring(MAX_IDS) + 1,
+                startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS)))
             --new
             if chunk_id == 0 then
-                local max_chunks = tonumber(string.sub(package, startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS) + 1 , startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS)*2))
+                local max_chunks = tonumber(string.sub(package, startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS) + 1,
+                    startPos + #tostring(MAX_IDS) + #tostring(MAX_CHUNKS) * 2))
                 playerSyncedPromises[owner][id] = {}
                 playerSyncedPromises[owner][id].maxChunks = max_chunks
                 playerSyncedPromises[owner][id].callback = funcName
@@ -254,7 +261,8 @@ OnInit.module("Sync Stream", function()
                 playerSyncedPromises[owner][id][chunk_id] = package:sub(#tostring(MAX_IDS) + #tostring(MAX_CHUNKS) + 1)
                 if chunk_id == playerSyncedPromises[owner][id].maxChunks then
                     --execute callback, inputs data and player
-                    getFunction(playerSyncedPromises[owner][id].callback)(table.concat(playerSyncedPromises[owner][id]), owner)
+                    getFunction(playerSyncedPromises[owner][id].callback)(table.concat(playerSyncedPromises[owner][id]),
+                        owner)
                     playerSyncedPromises[owner][id] = nil
                     return
                 end
@@ -269,7 +277,7 @@ OnInit.module("Sync Stream", function()
             --print(chunk_id)
             if chunk_id == 0 then
                 if not promise.queue then return end
-                promise.length = promise.queue.length or 0   --data_length
+                promise.length = promise.queue.length or 0 --data_length
                 promise.next_chunk = 1
                 return
             end

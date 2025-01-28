@@ -1,4 +1,4 @@
----@diagnostic disable: missing-fields
+---@diagnostic disable: missing-fields, inject-field
 if Debug then Debug.beginFile "MINACE" end
 ---@diagnostic disable: need-check-nil
 do

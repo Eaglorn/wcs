@@ -44,7 +44,7 @@ do
         percent = {}
     }
 
-    onInit(function()
+    OnInit.main(function()
         RegisterSpellDamageEvent(function()
             local damage = GetEventDamage()
 

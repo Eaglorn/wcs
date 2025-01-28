@@ -2,7 +2,7 @@
 do
     local funcs = {}
 
-    function onInit(code)
+    function OnInit.main(code)
         if type(code) == "function" then
             table.insert(funcs, code)
         end

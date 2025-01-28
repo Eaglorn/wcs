@@ -1030,7 +1030,7 @@ do
             end
             whichWindow.textHeight[whichFrame] = BlzFrameGetHeight(whichWindow.textMessageFrame[whichFrame]) +
                 math.max(whichWindow.messageFormat[whichFrame].spacing, whichWindow.messageFormat[whichFrame + 1]
-                .spacing)
+                    .spacing)
             RepositionAllMessages(whichWindow)
         end
     end

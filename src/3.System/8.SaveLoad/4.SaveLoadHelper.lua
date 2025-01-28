@@ -3,7 +3,7 @@ if Debug then Debug.beginFile "SaveLoadHelper" end
 OnInit.module("SaveLoadHelper", function(require)
     require "Encoder62"
     require "FileIO"
---[[
+    --[[
     SaveLoadHelper version 1.3 by Wrda
     (Special thanks to Antares)
     This system is responsible in squeezing a player's data from a table and then retrieving it matching
@@ -49,22 +49,25 @@ OnInit.module("SaveLoadHelper", function(require)
         ---@param data string
         ---@return table<string, any>
         function SaveLoad.loadHelperDynamic(data)
-            - Loads data into a table. The table will have string keys.     
+            - Loads data into a table. The table will have string keys.
     ]]
     SaveLoad = {}
---[[----------------------------------------------------------------------------------------------------
+    --[[----------------------------------------------------------------------------------------------------
                             CONFIGURATION                                                             ]]
-    SaveLoad.FOLDER = "TEST MAP"         -- Name of the folder. Not required, but serves as a default.
-    SaveLoad.FILE_PREFIX = "TestCode-"  -- You can have none. Use empty string and NOT nil. Not required, but serves as a default.
-    SaveLoad.FILE_SUFFIX = "-0"         -- You can have none. Use empty string and NOT nil. Not required, but serves as a default.
-    SAVE_LOAD_SEED = 1                  -- This is used for generating a random permutation of the scrambled string. Set it to any integer unique for your map. You're not supposed to change your mind on this later on.
- 
+    SaveLoad.FOLDER = "TEST MAP"       -- Name of the folder. Not required, but serves as a default.
+    SaveLoad.FILE_PREFIX =
+    "TestCode-"                        -- You can have none. Use empty string and NOT nil. Not required, but serves as a default.
+    SaveLoad.FILE_SUFFIX =
+    "-0"                               -- You can have none. Use empty string and NOT nil. Not required, but serves as a default.
+    SAVE_LOAD_SEED = 1                 -- This is used for generating a random permutation of the scrambled string. Set it to any integer unique for your map. You're not supposed to change your mind on this later on.
+
     ---Gets the default string format path.
     ---@param playerName string
     ---@return string
     function SaveLoad.getDefaultPath(playerName)
         return SaveLoad.FOLDER .. "\\" .. SaveLoad.FILE_PREFIX .. playerName .. SaveLoad.FILE_SUFFIX .. ".pld"
     end
+
     --------------------------------------------------------------------------------------------------------
     local pack = string.pack
     local unpack = string.unpack
@@ -151,19 +154,19 @@ OnInit.module("SaveLoadHelper", function(require)
     pseudoRandomPermutation = function(str, seed)
         local oldSeed = math.random(0, 2147483647)
         math.randomseed(seed)
- 
+
         local chars = {}
         for i = 1, #str do
             table.insert(chars, str:sub(i, i))
         end
- 
+
         for i = #chars, 2, -1 do
             local j = math.random(i)
             chars[i], chars[j] = chars[j], chars[i]
         end
- 
+
         math.randomseed(oldSeed)
- 
+
         return table.concat(chars)
     end
     --scrambler
@@ -218,6 +221,7 @@ OnInit.module("SaveLoadHelper", function(require)
         local indexedTable = convertToIndexedTable(list)
         return SaveLoad.saveHelperIndex(p, indexedTable, playerName, filePath)
     end
+
     ---Saves data to a single player. "list" must be an indexed-key table.
     ---If not given a playerName, it is saved with the current player name.
     ---Returns the "list" table, may be useful in when one uses SaveLoad.saveHelperDynamic because it calls SaveLoad.saveHelperIndex inside.
@@ -257,7 +261,7 @@ OnInit.module("SaveLoadHelper", function(require)
         end
         return list
     end
- 
+
     ---Loads data into a table. The table will have indexed keys.
     ---@param scrambledData string
     ---@return table<integer, any>|nil
@@ -279,7 +283,7 @@ OnInit.module("SaveLoadHelper", function(require)
             length = Base62.fromBase62(length)
             oldpos = fin + length + 1
             local value
-            if length == 0 then     --boolean data always has 0 length
+            if length == 0 then --boolean data always has 0 length
                 value = (delimiterList[delType] == "true") and true or false
                 goto skip
             else
@@ -290,12 +294,13 @@ OnInit.module("SaveLoadHelper", function(require)
             elseif delimiterList[delType] == "integer" then
                 value = math.tointeger(Base62.fromBase62(value))
             end
-            ::skip::    --skip if delimiter type was a boolean
+            ::skip:: --skip if delimiter type was a boolean
             output[i] = value
             i = i + 1
         until oldpos >= max
         return output
     end
+
     ---Loads scrambledData into a table. The table will have string keys.
     ---@param scrambledData string
     ---@return table<string, any>|nil
@@ -317,7 +322,7 @@ OnInit.module("SaveLoadHelper", function(require)
             length = Base62.fromBase62(length)
             oldpos = fin + length + 1
             local value
-            if length == 0 then     --boolean data always has 0 length
+            if length == 0 then --boolean data always has 0 length
                 value = (delimiterList[delType] == "true") and true or false
                 goto skip
             else
@@ -328,7 +333,7 @@ OnInit.module("SaveLoadHelper", function(require)
             elseif delimiterList[delType] == "integer" then
                 value = math.tointeger(Base62.fromBase62(value))
             end
-            ::skip::    --skip if delimiter type was a boolean
+            ::skip:: --skip if delimiter type was a boolean
             output[i] = value
             i = i + 1
         until oldpos >= max

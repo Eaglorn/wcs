@@ -105,7 +105,7 @@ do
         end
     end
 
-    onInit(function()
+    OnInit.main(function()
         for i = 1, 7 do
             after[i] = {}
             before[i] = {}

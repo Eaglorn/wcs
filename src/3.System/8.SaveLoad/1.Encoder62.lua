@@ -10,7 +10,7 @@ OnInit.root("Encoder62", function()
     function Base62.toBase62(num)
         local base = 62
         local result = ""
-   
+
         local isNegative = false
         if num < 0 then
             num = -num
@@ -26,6 +26,7 @@ OnInit.root("Encoder62", function()
         until num == 0
         return isNegative and "-" .. result or result
     end
+
     ---Convert a Base62 string back to a number
     ---@param base62Str string
     ---@return number

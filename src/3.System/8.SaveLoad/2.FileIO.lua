@@ -52,7 +52,8 @@ OnInit.map("FileIO", function()
     end
 
     local function close()
-        Preload(']]BlzSetAbilityTooltip(' .. LOAD_ABILITY .. ', table.concat(p), 0)\n//!endusercode\nfunction a takes nothing returns nothing\n//')
+        Preload(']]BlzSetAbilityTooltip(' ..
+        LOAD_ABILITY .. ', table.concat(p), 0)\n//!endusercode\nfunction a takes nothing returns nothing\n//')
         PreloadGenEnd(name --[[@as string]])
         name = nil
     end

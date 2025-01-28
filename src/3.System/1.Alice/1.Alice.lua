@@ -1,4 +1,4 @@
----@diagnostic disable: missing-fields, param-type-mismatch, undefined-field
+---@diagnostic disable: missing-fields, param-type-mismatch, undefined-field, inject-field
 if Debug then Debug.beginFile "ALICE" end
 ---@diagnostic disable: need-check-nil
 do

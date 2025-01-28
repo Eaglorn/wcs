@@ -33,7 +33,7 @@ do
     -- -------------------------------------------------------------------------- --
     LifeSteal = {}
 
-    onInit(function()
+    OnInit.main(function()
         RegisterAttackDamageEvent(function()
             local damage = GetEventDamage()
 

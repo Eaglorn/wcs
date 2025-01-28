@@ -749,7 +749,7 @@ do
             end
         end
 
-        onInit(function()
+        OnInit.main(function()
             local timer = CreateTimer()
             local unit
 
@@ -903,7 +903,7 @@ do
             this.effect = AddSpecialEffectTarget(model, unit, attach)
         end
 
-        onInit(function()
+        OnInit.main(function()
             RegisterPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function()
                 local item = GetManipulatedItem()
                 local i = 1
