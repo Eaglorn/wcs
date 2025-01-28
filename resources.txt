@@ -8,3 +8,25 @@ https://www.hiveworkshop.com/threads/button-manager-v1-8-2.116280/
 
 https://www.hiveworkshop.com/threads/get-handle-type.354436/
 https://www.hiveworkshop.com/threads/easy-ability-fields.355859/
+
+https://www.hiveworkshop.com/threads/classic-talent-trees-v1-2.355929/#post-3643250
+
+https://www.hiveworkshop.com/threads/tasfullscreenframe.356151/
+
+https://www.hiveworkshop.com/threads/total-initialization.317099/page-2#post-3610662
+
+https://www.hiveworkshop.com/threads/lua-save-and-load-1-6.355977/#post-3641903
+
+https://www.hiveworkshop.com/threads/neat-text-messages.350336/
+
+https://www.hiveworkshop.com/threads/relativistic-missiles-vjass-lua-gui.325964/ !!!!!!!!!!!!!!
+
+
+https://www.hiveworkshop.com/threads/a-comprehensive-guide-to-mapping-in-lua.341880/
+
+https://xgm.guru/p/wc3/math
+https://xgm.guru/p/wc3/ability-cast
+https://xgm.guru/p/wc3/frame
+https://xgm.guru/p/wc3/universecast
+https://xgm.guru/p/wc3/dynamictooltipability
+https://xgm.guru/p/wc3/wcsoundmaster

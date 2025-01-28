@@ -377,8 +377,9 @@ do
 
         if BlzGroupGetSize(group) == 1 then
             DestroyLightningTimed(
-            AddLightningEx(lightning, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 60.0, GetUnitX(target),
-                GetUnitY(target), GetUnitZ(target) + 60.0), duration)
+                AddLightningEx(lightning, true, GetUnitX(source), GetUnitY(source), GetUnitZ(source) + 60.0,
+                    GetUnitX(target),
+                    GetUnitY(target), GetUnitZ(target) + 60.0), duration)
             DestroyEffect(AddSpecialEffectTarget(effect, target, attach))
             UnitDamageTarget(source, target, damage, false, false, attacktype, damagetype, nil)
             DestroyGroup(group)
@@ -418,8 +419,8 @@ do
 
                         if next then
                             DestroyLightningTimed(
-                            AddLightningEx(lightning, true, GetUnitX(this), GetUnitY(this), GetUnitZ(this) + 60.0,
-                                GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
+                                AddLightningEx(lightning, true, GetUnitX(this), GetUnitY(this), GetUnitZ(this) + 60.0,
+                                    GetUnitX(next), GetUnitY(next), GetUnitZ(next) + 60.0), duration)
                             DestroyEffect(AddSpecialEffectTarget(effect, next, attach))
                             GroupAddUnit(damaged, next)
                             UnitDamageTarget(source, next, damage, false, false, attacktype, damagetype, nil)

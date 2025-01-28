@@ -297,7 +297,7 @@ do
         local current, next = timerQueue.queue.next, nil
         while current ~= timerQueue.queue and stackSize < MAX_STACK_SIZE do --stop recycling early, if MAX_STACK_SIZE is reached. Remaining TimerQueueElements will be garbage collected. Weak values in TimerQueueElement.storage makes sure no reference is left.
             next = current
-            .next                                                           --need to save current.next here, as it gets nilled during recycleTimerQueueElement
+                .next                                                       --need to save current.next here, as it gets nilled during recycleTimerQueueElement
             recycleTimerQueueElement(current)
             current = next
         end
