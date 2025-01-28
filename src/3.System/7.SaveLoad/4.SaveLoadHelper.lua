@@ -116,11 +116,13 @@ OnInit.module("SaveLoadHelper", function(require)
     ---@param float number
     ---@return integer
     local function binaryFloat2Integer(float)
+---@diagnostic disable-next-line: redundant-return-value
         return unpack("i4", pack("f", float))
     end
     ---@param integer integer
     ---@return number
     local function binaryInteger2Float(integer)
+---@diagnostic disable-next-line: redundant-return-value
         return string.unpack("f", string.pack("i4", integer))
     end
     --validating parts of the file

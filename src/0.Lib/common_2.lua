@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-return
 
 ---@param whichPlayer player
 ---@param abilid integer

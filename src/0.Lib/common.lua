@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-return
 ---@class agent : handle
 
 ---@class event : agent

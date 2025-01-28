@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-return
 ---3.14159
 ---@type real
 bj_PI = nil

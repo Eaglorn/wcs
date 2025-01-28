@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-return, undefined-doc-name
 ---ConvertAbilityRealLevelField('Cri2')
 ---@type abilityreallevelfield
 ABILITY_RLF_ATTACK_SPEED_REDUCTION_PERCENT_CRI2 = nil
