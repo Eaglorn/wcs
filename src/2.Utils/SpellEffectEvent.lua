@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
     /* ------------------- SpellEffectEvent v1.1 by Chopinski ------------------ */
     -- Full credits to Bribe for the original library. I just modified it to store

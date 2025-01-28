@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
     /* ------------------------ Evasion v2.4 by Chopinski ----------------------- */
     Evasion implements an easy way to register and detect a custom evasion event.

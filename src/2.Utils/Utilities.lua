@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global, param-type-mismatch, lowercase-global
 --[[ requires Indexer, TimedHandles, RegisterPlayerUnitEvent
     -- --------------------------------------- Utilities v1.8 --------------------------------------- --
     -- How to Import:

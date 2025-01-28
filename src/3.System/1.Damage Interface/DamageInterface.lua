@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
     /* --------------------- DamageInterface v2.4 by Chopinski --------------------- */
     Allows for easy registration of specific damage type events like on attack

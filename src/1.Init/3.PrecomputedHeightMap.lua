@@ -1,4 +1,4 @@
-if Debug then Debug.beginFile "PrecomputedHeightMap" end ---@diagnostic disable: param-type-mismatch
+if Debug then Debug.beginFile "PrecomputedHeightMap" end ---@diagnostic disable: param-type-mismatch, undefined-global
 do
     --[[
     ===============================================================================================================================================================

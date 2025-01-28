@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
     /* ------------------------ CriticalStrike v2.4 by Chopinski ----------------------- */
      CriticalStrike implements an easy way to register and detect a custom critical event.

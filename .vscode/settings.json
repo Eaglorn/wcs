@@ -6,18 +6,11 @@
   "Lua.hint.enable": true,
   "Lua.type.weakUnionCheck": true,
   "Lua.type.weakNilCheck": true,
-  "Lua.diagnostics.disable": [
-    "lowercase-global",
-    "inject-field",
-    "undefined-global"
-  ],
+  "Lua.diagnostics.disable": [],
   "editor.parameterHints.enabled": true,
   "workbench.editor.enablePreview": false,
   "editor.semanticHighlighting.enabled": true,
   "Lua.codeLens.enable": true,
   "Lua.diagnostics.libraryFiles": "Opened",
-  "Lua.workspace.library": [
-    "C:\\Users\\averin\\Documents\\GitHub\\wcs\\src\\0.Lib\\",
-    "C:\\Users\\averin\\Documents\\GitHub\\wcs\\src\\2.Utils\\"
-  ]
+  "Lua.workspace.library": []
 }

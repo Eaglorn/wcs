@@ -1,4 +1,4 @@
----@diagnostic disable: redundant-return-value
+---@diagnostic disable: redundant-return-value, lowercase-global
 if Debug then Debug.beginFile "SaveLoadHelper" end
 OnInit.module("SaveLoadHelper", function(require)
     require "Encoder62"

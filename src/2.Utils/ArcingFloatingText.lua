@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global, lowercase-global
 -- Arcing Text Tag v1.0.0.3 by Maker encoded to Lua
 
 DEFINITION   = 1.0 / 32.0

@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 do
     local funcs = {}
 

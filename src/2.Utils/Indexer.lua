@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
     -- ------------------------ Indexer v1.1 by Chopinski ----------------------- --
         Simple Unit Indexer for LUA.

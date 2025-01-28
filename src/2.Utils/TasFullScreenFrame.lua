@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[ TasFullScreenFrame V2 by Tasyen
 This helps in creating Frames that can Leave 4:3 of Screen and helps in attaching to the left/right border of the window. Works in Warcraft 3 V1.31.1 and V1.36.
 

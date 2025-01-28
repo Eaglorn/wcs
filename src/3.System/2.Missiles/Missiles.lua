@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global, param-type-mismatch
 --[[ requires MissileEffect, optional MissilesUtils
     -- ---------------------------------------- Missiles v2.7 --------------------------------------- --
     -- Thanks and Credits to BPower, Dirac and Vexorian for the Missile Library's at which i based
